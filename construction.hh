@@ -9,7 +9,7 @@ public:
     MyDetectorConstruction();
     ~MyDetectorConstruction();
 
-    G4VPhysicalVolume* createSmallBox(G4LogicalVolume* motherVolume, G4int index);
+    G4VPhysicalVolume* createSmallBox(G4LogicalVolume* motherVolume, G4int i, G4int j, G4int k);
 
     virtual G4VPhysicalVolume* Construct();
 

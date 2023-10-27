@@ -11,7 +11,7 @@ MyDetectorConstruction::MyDetectorConstruction()
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
 
-G4VPhysicalVolume* MyDetectorConstruction::createSmallBox(G4LogicalVolume* motherVolume, G4int i, G4int j, G4int k) {
+G4VPhysicalVolume* MyDetectorConstruction::createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k) {
     G4NistManager* nistManager = G4NistManager::Instance();
     G4Material* waterMaterial = nistManager->FindOrBuildMaterial("G4_WATER");
 
@@ -24,15 +24,11 @@ G4VPhysicalVolume* MyDetectorConstruction::createSmallBox(G4LogicalVolume* mothe
 
     // Nó sẽ đặt vị trí tại tâm của các thùng hàng
     //  nên sẽ phải trừ 1 nửa kích thước các chiều
-    G4double space = 0.0 *cm;
-    if(i%2==0){
-        space = 20.0 *cm;
-    } else {space = 0.0*cm;}
     
-    G4double posX = -130.0 *cm + 30.0 * 2 * i * cm;
+    G4double posX = -97.5 *cm + 30.0 * 2 * i * cm + (i/2) * 15.0 *cm;
     G4double posY = -140.0 *cm + 20.0 * 2 * j * cm;
     G4double posZ = -50.0 *cm + 40.0 * 2 * k *cm;
-    G4ThreeVector position = G4ThreeVector(space + posX, posY, 5.0 *cm + posZ + k * 10.0 *cm); // trục z cách mỗi đầu 5cm, giữa 2 thùng hàng cách nhau 10cm.
+    G4ThreeVector position = G4ThreeVector(posX, posY, 5.0 *cm + posZ + k * 10.0 *cm); // trục z cách mỗi đầu 5cm, giữa 2 thùng hàng cách nhau 10cm.
 
     G4RotationMatrix* noRotation = nullptr;
 
@@ -44,12 +40,37 @@ G4VPhysicalVolume* MyDetectorConstruction::createSmallBox(G4LogicalVolume* mothe
     return physicalBox;
 }
 
+G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *motherVolume){
+    G4NistManager* nistManager = G4NistManager::Instance();
+    G4Material* sourceMaterial = nistManager->FindOrBuildMaterial("G4_Co");
+
+    G4double sourceX = 12.0 *cm;
+    G4double sourceY = 120.0 *cm;
+    G4double sourceZ = 85.0 *cm;
+    G4Box *solidSource = new G4Box("SourceCobalt", sourceX, sourceY, sourceZ);
+    G4LogicalVolume* logicSource = new G4LogicalVolume(solidSource, sourceMaterial, "sourceLogical");
+
+    G4double posSourceX = -0.5 *cm;
+    G4double posSourceY = -5.0 *cm;
+    G4double posSourceZ = -5.0 *cm;
+    G4ThreeVector posSource = G4ThreeVector(posSourceX, posSourceY, posSourceZ);
+
+    G4RotationMatrix* noRotation = nullptr;
+
+    G4VPhysicalVolume* physicalSource = new G4PVPlacement(noRotation, posSource, logicSource, "sourcePhysical", motherVolume, false, 0);
+
+    G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(0.0, 0.3, 0.5));
+    logicSource->SetVisAttributes(visAttributes);
+
+    return physicalSource;
+}
+
 G4VPhysicalVolume* MyDetectorConstruction::Construct() {
     G4NistManager* nistManager = G4NistManager::Instance();
     G4Material* airMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
 
-    G4double worldSizeX = 130.0 * cm;
-    G4double worldSizeY = 160.0 * cm;
+    G4double worldSizeX = 132.5 * cm;
+    G4double worldSizeY = 165.0 * cm;
     G4double worldSizeZ = 90.0 * cm;
     G4Box* solidWorld = new G4Box("World", worldSizeX, worldSizeY, worldSizeZ);
     logicWorld = new G4LogicalVolume(solidWorld, airMaterial, "World");
@@ -57,18 +78,14 @@ G4VPhysicalVolume* MyDetectorConstruction::Construct() {
     G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicWorld->SetVisAttributes(visAttributes);
 
-    // for (G4int k=0; k<2; k++){
-    //     for (G4int j=0; j<8; j++){
-    //         for (G4int i=0; i<4; i++){
-    //             createSmallBox(logicWorld, i, j, k);
-    //         }
-    //     }
-    // }
+    for (G4int k=0; k<2; k++){
+        for (G4int j=0; j<8; j++){
+            for (G4int i=0; i<4; i++){
+                createSmallBox(logicWorld, i, j, k);
+            }
+        }
+    }
+    // createSourceBox(logicWorld);
 
-    createSmallBox(logicWorld, 0,0,0);
-    createSmallBox(logicWorld, 0,0,1);
-    createSmallBox(logicWorld, 1,0,0);
-    createSmallBox(logicWorld, 2,0,0);
-    createSmallBox(logicWorld, 3,0,0);
     return new G4PVPlacement(0, G4ThreeVector(0,0,0), logicWorld, "World", nullptr, false, 0);
 }

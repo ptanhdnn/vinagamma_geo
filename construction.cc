@@ -1,91 +1,150 @@
 #include "construction.hh"
-#include "G4NistManager.hh"
-#include "G4Box.hh"
-#include "G4PVPlacement.hh"
-#include "G4VisAttributes.hh"
-#include "G4RotationMatrix.hh"
-#include "G4SystemOfUnits.hh"
 
 MyDetectorConstruction::MyDetectorConstruction()
 {}
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
 
-G4VPhysicalVolume* MyDetectorConstruction::createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k) {
-    G4NistManager* nistManager = G4NistManager::Instance();
-    G4Material* waterMaterial = nistManager->FindOrBuildMaterial("G4_WATER");
+G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k) {
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *boxMaterial = nistManager->FindOrBuildMaterial("G4_Al");
+    G4Material *topMaterial = nistManager->FindOrBuildMaterial("G4_Air");
 
     G4double boxX = 30.0 * cm; // Chiều dài
     G4double boxY = 20.0 * cm; // Chiều rộng
     G4double boxZ = 40.0 * cm; // Chiều cao
-    G4Box* solidBox = new G4Box("DetectorBox", boxX, boxY, boxZ);
+    G4Box *solidOriginalBox = new G4Box("OriginalBox", boxX, boxY, boxZ);
 
-    G4LogicalVolume* logicBox = new G4LogicalVolume(solidBox, waterMaterial, "BoxLogical");
+    // Tạo phần thể tích không gian vật liệu bên trong
+    G4double insideBoxX = 29.5 *cm;
+    G4double insideBoxY = 19.5 *cm;
+    G4double insideBoxZ = 39.5 *cm;
+    G4Box *solidPackage = new G4Box("package", insideBoxX, insideBoxY, insideBoxZ);
+    G4SubtractionSolid *solidBox = new G4SubtractionSolid("BoxSolid", solidOriginalBox, solidPackage);
+    G4LogicalVolume *logicPackage = new G4LogicalVolume(solidPackage, boxMaterial, "packageLogical");
+    G4LogicalVolume *logicBox = new G4LogicalVolume(solidBox, boxMaterial, "BoxLogical");
 
-    // Nó sẽ đặt vị trí tại tâm của các thùng hàng
-    //  nên sẽ phải trừ 1 nửa kích thước các chiều
-    
+    // Geant4 sẽ đặt vị trí tại tâm của các thùng hàng không phải tại cạnh của box
+    //  nên sẽ phải trừ 1 nửa kích thước của các chiều của thùng hàng
+    /*
+    Các tọa độ X, Y, Z tương ứng với ngang (4 box), dài(8 box), và cao (2 box)
+    do kích thước ban đầu đặt X,Y,Z theo 1 box ở trên.
+    Với posX: 1box (30*2) *4 +15cm ở giữa 2 box + 5*2cm (mỗi bên cách khung motherBox 5cm) = 265cm
+              265cm = 2 *132.5cm = kích thước chiều X của motherBox => OK
+            * Lẽ ra vị trí đầu tiên của posX sẽ phải bắt đầu từ -(132.5-5(cách khung 5cm)cm)
+              là vị trí -127.5cm. Nhưng Geant4 đặt vị trí tại tâm của thùng hàng nên vị trí ban đầu
+              phải dịch +30cm (bằng nửa chiều dài của box X) => -127.5 +30 = -97.5cm
+
+    Với tương tự posY thì vị trí của box đầu tiên theo trục Y là -(165 -5 -20)= -145cm
+    Với posZ -(90 -5 -40) = -45cm
+    */
     G4double posX = -97.5 *cm + 30.0 * 2 * i * cm + (i/2) * 15.0 *cm;
     G4double posY = -140.0 *cm + 20.0 * 2 * j * cm;
-    G4double posZ = -50.0 *cm + 40.0 * 2 * k *cm;
-    G4ThreeVector position = G4ThreeVector(posX, posY, 5.0 *cm + posZ + k * 10.0 *cm); // trục z cách mỗi đầu 5cm, giữa 2 thùng hàng cách nhau 10cm.
+    G4double posZ = -45.0 *cm + 40.0 * 2 * k *cm +k *10.0 *cm;
+    G4ThreeVector position = G4ThreeVector(posX, posY, posZ);
 
-    G4RotationMatrix* noRotation = nullptr;
+    G4VPhysicalVolume *physicalBox = new G4PVPlacement(0, position, logicBox, "BoxPhysical", motherVolume, false, 0);
 
-    G4VPhysicalVolume* physicalBox = new G4PVPlacement(noRotation, position, logicBox, "BoxPhysical", motherVolume, false, 0);
+     // Tạo phần thể tích nắp, thay bằng không khí
+    G4double topBoxX = 29.5 *cm;
+    G4double topBoxY = 19.5 *cm;
+    G4double topBoxZ = 0.25 *cm;
+    G4Box *solidTop = new G4Box("solidTop", topBoxX, topBoxY, topBoxZ);
+    G4LogicalVolume *logicTop = new G4LogicalVolume(solidTop, topMaterial, "topLogical");
 
-    G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
-    logicBox->SetVisAttributes(visAttributes);
+    G4double posTopX = -97.5 *cm + 30.0 * 2 * i * cm + (i/2) * 15.0 *cm;
+    G4double posTopY = -140.0 *cm + 20.0 * 2 * j * cm;
+    G4double posTopZ = -5.25 *cm + 40.0 * 2 * k *cm + k *10.0 *cm;
+    G4ThreeVector posTop = G4ThreeVector(posTopX, posTopY, posTopZ);
+
+    G4VPhysicalVolume *physicalTop = new G4PVPlacement(0, posTop, logicTop, "TopPhysical", motherVolume, false, 0);
+
+    // Màu sắc của logicBox
+    G4VisAttributes *visAttributesBox = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
+    logicBox->SetVisAttributes(visAttributesBox);
+
+    // Màu sắc của logicPackage
+    G4VisAttributes *visAttributesPackage = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    logicPackage->SetVisAttributes(visAttributesPackage);
+
+    G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    logicTop->SetVisAttributes(visTop);
+
+    createDetector(motherVolume, posX-boxX+5.0*cm, posY-boxY+5.0*cm, posZ-boxZ+5.0*cm);
 
     return physicalBox;
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *motherVolume){
-    G4NistManager* nistManager = G4NistManager::Instance();
-    G4Material* sourceMaterial = nistManager->FindOrBuildMaterial("G4_Co");
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *sourceMaterial = nistManager->FindOrBuildMaterial("G4_Co");
 
-    G4double sourceX = 12.0 *cm;
-    G4double sourceY = 120.0 *cm;
-    G4double sourceZ = 85.0 *cm;
+    G4double sourceX = 6.0 *cm;
+    G4double sourceY = 60.0 *cm;
+    G4double sourceZ = 42.5 *cm;
     G4Box *solidSource = new G4Box("SourceCobalt", sourceX, sourceY, sourceZ);
-    G4LogicalVolume* logicSource = new G4LogicalVolume(solidSource, sourceMaterial, "sourceLogical");
+    G4LogicalVolume *logicSource = new G4LogicalVolume(solidSource, sourceMaterial, "sourceLogical");
 
-    G4double posSourceX = -0.5 *cm;
-    G4double posSourceY = -5.0 *cm;
-    G4double posSourceZ = -5.0 *cm;
-    G4ThreeVector posSource = G4ThreeVector(posSourceX, posSourceY, posSourceZ);
+    // G4double posSourceX = -0.5 *cm;
+    // G4double posSourceY = -5.0 *cm;
+    // G4double posSourceZ = -5.0 *cm;
+    G4ThreeVector posSource = G4ThreeVector(0., 0., 0.);
 
-    G4RotationMatrix* noRotation = nullptr;
+    G4VPhysicalVolume *physicalSource = new G4PVPlacement(0, posSource, logicSource, "sourcePhysical", motherVolume, false, 0);
 
-    G4VPhysicalVolume* physicalSource = new G4PVPlacement(noRotation, posSource, logicSource, "sourcePhysical", motherVolume, false, 0);
-
-    G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(0.0, 0.3, 0.5));
+    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.0, 0.3, 0.5));
     logicSource->SetVisAttributes(visAttributes);
 
     return physicalSource;
 }
 
-G4VPhysicalVolume* MyDetectorConstruction::Construct() {
-    G4NistManager* nistManager = G4NistManager::Instance();
-    G4Material* airMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ){
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
 
-    G4double worldSizeX = 132.5 * cm;
-    G4double worldSizeY = 165.0 * cm;
-    G4double worldSizeZ = 90.0 * cm;
-    G4Box* solidWorld = new G4Box("World", worldSizeX, worldSizeY, worldSizeZ);
-    logicWorld = new G4LogicalVolume(solidWorld, airMaterial, "World");
-
-    G4VisAttributes* visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-    logicWorld->SetVisAttributes(visAttributes);
+    G4double detSizeX = 0.5 *cm;
+    G4double detSizeY = 0.5 *cm;
+    G4double detSizeZ = 1.0 *cm;
 
     for (G4int k=0; k<2; k++){
-        for (G4int j=0; j<8; j++){
-            for (G4int i=0; i<4; i++){
-                createSmallBox(logicWorld, i, j, k);
+        for (G4int j=0; j<3; j++){
+            for (G4int i=0; i<4;i++){
+                G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
+                G4LogicalVolume *logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detLogical");
+                G4double posDetX = posX + 0.5*cm + detSizeX * 2 *i *cm;
+                G4double posDetY = posY + 0.5 *cm  + detSizeY * 2 *j *cm;
+                G4double posDetZ = posZ + 1.0 *cm  + detSizeZ * 2 *k *cm;
+                G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
+
+                G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysical", motherVolume, false, 0);
+
             }
         }
     }
-    // createSourceBox(logicWorld);
+}
 
+G4VPhysicalVolume *MyDetectorConstruction::Construct() {
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *airMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+
+    G4double worldSizeX = 132.5 *cm;
+    G4double worldSizeY = 165.0 *cm;
+    G4double worldSizeZ = 90.0 *cm;
+    G4Box *solidWorld = new G4Box("World", worldSizeX, worldSizeY, worldSizeZ);
+    logicWorld = new G4LogicalVolume(solidWorld, airMaterial, "World");
+
+    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    logicWorld->SetVisAttributes(visAttributes);
+
+    // for (G4int k=0; k<2; k++){
+    //     for (G4int j=0; j<8; j++){
+    //         for (G4int i=0; i<4; i++){
+    //             createSmallBox(logicWorld, i, j, k);
+    //         }
+    //     }
+    // }
+    // createSourceBox(logicWorld);
+    createSmallBox(logicWorld, 0,0,0);
+    createSmallBox(logicWorld, 0,0,1);
     return new G4PVPlacement(0, G4ThreeVector(0,0,0), logicWorld, "World", nullptr, false, 0);
 }

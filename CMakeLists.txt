@@ -27,6 +27,9 @@ include(${Geant4_USE_FILE})
 #
 file(GLOB sources ${PROJECT_SOURCE_DIR}/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/*.hh)
+file(GLOB MACRO_FILES "*.mac")
+
+file(COPY ${MACRO_FILES} DESTINATION ${PROJECT_BINARY_DIR})
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries

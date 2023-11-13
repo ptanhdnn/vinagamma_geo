@@ -11,6 +11,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4SubtractionSolid.hh"
 
+#include "detector.hh"
+
 class MyDetectorConstruction : public G4VUserDetectorConstruction {
 public:
     MyDetectorConstruction();
@@ -23,7 +25,10 @@ public:
     virtual G4VPhysicalVolume *Construct();
 
 private:
-    G4LogicalVolume *logicWorld;
+    G4LogicalVolume *logicDetector, *logicWorld;
+    MySensitiveDetector *senDet = new MySensitiveDetector("SensitiveDetector");
+
+    virtual void ConstructSDandField();
 };
 
 #endif

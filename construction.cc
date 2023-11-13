@@ -7,15 +7,17 @@ MyDetectorConstruction::~MyDetectorConstruction()
 
 G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k) {
     G4NistManager *nistManager = G4NistManager::Instance();
+    // Tạo phần vật liệu của vỏ thùng là nhôm
     G4Material *boxMaterial = nistManager->FindOrBuildMaterial("G4_Al");
-    G4Material *topMaterial = nistManager->FindOrBuildMaterial("G4_Air");
+    // Tạo phần vật liệu của nắp thùng là không khí
+    G4Material *topMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
 
-    G4double boxX = 30.0 * cm; // Chiều dài
-    G4double boxY = 20.0 * cm; // Chiều rộng
-    G4double boxZ = 40.0 * cm; // Chiều cao
+    G4double boxX = 30.0 * cm; // Chiều dài thùng hàng
+    G4double boxY = 20.0 * cm; // Chiều rộng thùng hàng
+    G4double boxZ = 40.0 * cm; // Chiều cao thùng hàng
     G4Box *solidOriginalBox = new G4Box("OriginalBox", boxX, boxY, boxZ);
 
-    // Tạo phần thể tích không gian vật liệu bên trong
+    // Tạo phần thể tích không gian vật liệu bên trong thùng hàng
     G4double insideBoxX = 29.5 *cm;
     G4double insideBoxY = 19.5 *cm;
     G4double insideBoxZ = 39.5 *cm;
@@ -70,7 +72,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicTop->SetVisAttributes(visTop);
 
-    createDetector(motherVolume, posX-boxX+5.0*cm, posY-boxY+5.0*cm, posZ-boxZ+5.0*cm);
+    createDetector(motherVolume, posX-boxX, posY-boxY, posZ-boxZ);
 
     return physicalBox;
 }
@@ -106,14 +108,14 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     G4double detSizeY = 0.5 *cm;
     G4double detSizeZ = 1.0 *cm;
 
-    for (G4int k=0; k<2; k++){
-        for (G4int j=0; j<3; j++){
-            for (G4int i=0; i<4;i++){
+    for (G4int k=0; k<8; k++){
+        for (G4int j=0; j<8; j++){
+            for (G4int i=0; i<12;i++){
                 G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
-                G4LogicalVolume *logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detLogical");
-                G4double posDetX = posX + 0.5*cm + detSizeX * 2 *i *cm;
-                G4double posDetY = posY + 0.5 *cm  + detSizeY * 2 *j *cm;
-                G4double posDetZ = posZ + 1.0 *cm  + detSizeZ * 2 *k *cm;
+                logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detLogical");
+                G4double posDetX = posX + 0.5*cm + detSizeX * i *cm;
+                G4double posDetY = posY + 0.5 *cm  + detSizeY *j *cm;
+                G4double posDetZ = posZ + 1.0 *cm  + detSizeZ *k *cm;
                 G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
 
                 G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysical", motherVolume, false, 0);
@@ -136,15 +138,27 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
     G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicWorld->SetVisAttributes(visAttributes);
 
-    // for (G4int k=0; k<2; k++){
-    //     for (G4int j=0; j<8; j++){
-    //         for (G4int i=0; i<4; i++){
-    //             createSmallBox(logicWorld, i, j, k);
-    //         }
-    //     }
-    // }
+    for (G4int k=0; k<2; k++){
+        for (G4int j=0; j<8; j++){
+            for (G4int i=0; i<4; i++){
+                createSmallBox(logicWorld, i, j, k);
+            }
+        }
+    }
+
+    G4cout << "+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+" << G4endl;
+    ConstructSDandField();
+    G4cout << "AFTER" << G4endl;
+    delete senDet;
     // createSourceBox(logicWorld);
-    createSmallBox(logicWorld, 0,0,0);
-    createSmallBox(logicWorld, 0,0,1);
+    // createSmallBox(logicWorld, 0,0,0);
+    // createSmallBox(logicWorld, 0,0,1);
+    // createSmallBox(logicWorld, 1,3,0);
     return new G4PVPlacement(0, G4ThreeVector(0,0,0), logicWorld, "World", nullptr, false, 0);
+}
+
+void MyDetectorConstruction::ConstructSDandField()
+{
+    G4cout << "Start calling SD part: " << G4endl;
+    logicDetector->SetSensitiveDetector(senDet);
 }

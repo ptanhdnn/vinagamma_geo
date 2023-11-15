@@ -1,3 +1,7 @@
+/*
+* Detetor construction class to define the materials and geometry
+*/
+
 #ifndef DETECTOR_HH
 #define DETECTOR_HH
 

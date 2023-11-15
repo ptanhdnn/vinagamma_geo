@@ -10,16 +10,17 @@
 class MyEventAction : public G4UserEventAction
 {
 public:
-    MyEventAction(MyRunAction*);
+    MyEventAction(MyRunAction* runAction);
     ~MyEventAction();
 
-    virtual void BeginOfEventAction(const G4Event*);
-    virtual void EndOfEventAction(const G4Event*);
+    virtual void BeginOfEventAction(const G4Event* event) override;
+    virtual void EndOfEventAction(const G4Event* event) override;
 
     void AddEdep(G4double edep) {fEdep += edep;}
 
 private:
-    G4double fEdep;
+    MyRunAction *fRunAction = nullptr;
+    G4double fEdep = 0.;
 };
 
 #endif

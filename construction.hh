@@ -22,7 +22,11 @@ public:
     G4VPhysicalVolume *createSourceBox(G4LogicalVolume *motherVolume);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ);
 
+    G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
     virtual G4VPhysicalVolume *Construct();
+
+protected:
+    G4LogicalVolume *fScoringVolume = nullptr;
 
 private:
     G4LogicalVolume *logicDetector, *logicWorld;

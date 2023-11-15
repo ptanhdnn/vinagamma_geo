@@ -119,7 +119,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
                 G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
 
                 G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysical", motherVolume, false, 0);
-
+                fScoringVolume = logicDetector;
             }
         }
     }

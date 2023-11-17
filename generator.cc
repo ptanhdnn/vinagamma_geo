@@ -12,9 +12,40 @@ MyPrimaryGenerator::~MyPrimaryGenerator()
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 {
-    G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
-    G4String particleName = "gamma";
-    G4ParticleDefinition *particle = particleTable->FindParticle(particleName);
+    // G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
+    // G4String particleName = "gamma";
+    // G4ParticleDefinition *particle = particleTable->FindParticle(particleName);
+    // Create a G4GeneralParticleSource object
+    // Define the half-life of Co-60 in seconds
+    double halfLifeInSeconds = 5.26 * 365.25 * 24 * 3600; // 5.26 years
+    double activityCi = 187.0; // Activity in kiloCuries
+    double lambda = log(2.0) / halfLifeInSeconds; // Calculate decay constant
+
+    // Calculate the number of decays per second (Becquerels)
+    double activityBq = activityCi * 1e3 * 3.7e10; // 1 Ci = 3.7e10 Bq
+    double decayConstant = lambda * activityBq;
+
+    // Create a G4RadioactiveDecay object
+    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+
+    // Create a G4DecayTable and set the decay constant for Co-60
+    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+    radioactiveDecay->SetDecayConstant(lambda); // Set decay constant for Co-60
+    radioactiveDecay->SetDecayMode(G4RadioactiveDecay::DecayMode::kBranchingRatios);
+    radioactiveDecay->AddBranch(new G4RadioactiveDecayChannel("gamma", 1.0));
+
+    // Define the Cobalt60
+    G4String elementName = "Cobalt";
+    G4int atomicNumber = 27;
+    G4int atomicMass = 60;
+    G4double abundance = 100.0 * perCent;
+    G4Isotope *isotope = new G4Isotope(elementName, atomicNumber, atomicMass, abundance);
+    
+    // Register the isotope into the G4NistManager
+    G4NistManager *nistManager = G4NistManager::Instance();
+    nistManager->Insert(isotope);
+    isotope->SetDecayTable(decayTable);
+
 /*
     // Bước 2: Đặt vị trí pos tại một vị trí ngẫu nhiên trong hình trụ Cobalt
     G4double cobaltSourceRadius = 1.0 * cm; // Bán kính của hình trụ
@@ -46,6 +77,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
     fParticleGun->SetParticleEnergy(energy);
+    fParticleGun->SetCurrentSourceIntensity(decayConstant);
     fParticleGun->SetParticleDefinition(particle);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);

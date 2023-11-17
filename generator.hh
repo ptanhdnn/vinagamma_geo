@@ -6,6 +6,11 @@
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleTable.hh"
 #include "G4RandomDirection.hh"
+#include "G4RadioactiveDecay.hh"
+#include "G4DecayTable.hh"
+#include "G4NistManager.hh"
+#include "G4Isotope.hh"
+#include "G4ParticleDefinition.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {

@@ -1,4 +1,0 @@
-/home/anpha_jr/leetcode/vinagamma_geo/build/CMakeFiles/vinagammaGeometry.dir
-/home/anpha_jr/leetcode/vinagamma_geo/build/CMakeFiles/VnGm_geo.dir
-/home/anpha_jr/leetcode/vinagamma_geo/build/CMakeFiles/edit_cache.dir
-/home/anpha_jr/leetcode/vinagamma_geo/build/CMakeFiles/rebuild_cache.dir

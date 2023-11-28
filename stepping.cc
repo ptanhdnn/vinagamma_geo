@@ -20,14 +20,26 @@ void MySteppingAction::UserSteppingAction(const G4Step *step)
         );
         fScoringVolume = detConstruction->GetScoringVolume();
     }
-
     G4LogicalVolume *volume = step->GetPreStepPoint()->GetTouchableHandle()->GetVolume()->GetLogicalVolume();
-    
-    // Kiểm tra tên volume có đúng là detPhysical_i_j_k không
+    // G4cout << "Check the name of Volume in step:" << G4endl;
+    // for (size_t i = 0; i < fConstruction->detectorLVs.size(); ++i) {
+    //     G4cout << " name: " << fConstruction->detectorLVs[i]->GetName() << G4endl;
+    // }
+    G4cout << "volumeName: " << volume->GetName() << G4endl;
+    // G4double edep = aStep->GetTotalEnergyDeposit();
+    // if(edep == 0.) return false;
+    // auto newHit = new TrackerHit();
+    // newHit->SetTrackID(aStep->GetTrack()->GetTrackID());
+    // newHit->SetDetectorNb(aStep->GetPreStepPoint()->GetTouchableHandle()->GetCopyNumber());
+    // newHit->SetEdep(edep);
+    // newHit->SetPos (aStep->GetPostStepPoint()->GetPosition());
 
-    G4cout << "Volume Name: " << volume->GetName() <<" and " << fScoringVolume->GetName() << G4endl;
-    // if (volume != fScoringVolume) return;
-    // G4String volumeName = volume->GetName();
+    // fHitsCollection->insert( newHit );
+    if(volume->GetName() == "detector_LV"){
+        G4double edep = step->GetTotalEnergyDeposit();
+        G4cout << "Energy: " << edep <<G4endl;
+    }
+}
 
     // // Trích xuất chỉ số i, j, k từ tên
     // size_t found_i = volumeName.find("_");
@@ -68,4 +80,3 @@ void MySteppingAction::UserSteppingAction(const G4Step *step)
     //         fEventAction->AddEdepToBox(i, j, k, edepStep);
     //     }
     // }
-}

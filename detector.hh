@@ -9,15 +9,21 @@
 #include "G4AnalysisManager.hh"
 #include "G4RunManager.hh"
 
+#include "trackerhit.hh"
+
 class MySensitiveDetector : public G4VSensitiveDetector
 {
 public:
-    MySensitiveDetector(G4String);
+    MySensitiveDetector(const G4String& name,
+                        const G4String& hitCollectionName);
     ~MySensitiveDetector();
 
-private:
-    virtual G4bool ProcessHits(G4Step *, G4TouchableHistory *);
+    void Initialize(G4HCofThisEvent *hitCollection);
+    G4bool ProcessHits(G4Step *step, G4TouchableHistory *history);
+    void EndOfEvent(G4HCofThisEvent *hitCollection);
 
+private:
+    TrackerHitsCollection *fHitsCollection = nullptr;
 };
 
 #endif

@@ -15,9 +15,13 @@ public:
 
     void UserSteppingAction(const G4Step*) override;
 
+    std::map<G4String, std::vector<G4double>>detCollections;
+
 private:
     MyEventAction *fEventAction = nullptr;
+    MyDetectorConstruction *fConstruction = nullptr;
     G4LogicalVolume *fScoringVolume = nullptr;
+    
 };
 
 #endif

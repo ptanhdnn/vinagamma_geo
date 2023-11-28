@@ -29,10 +29,10 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
 
     // Create a G4DecayTable and set the decay constant for Co-60
-    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-    radioactiveDecay->SetDecayConstant(lambda); // Set decay constant for Co-60
-    radioactiveDecay->SetDecayMode(G4RadioactiveDecay::DecayMode::kBranchingRatios);
-    radioactiveDecay->AddBranch(new G4RadioactiveDecayChannel("gamma", 1.0));
+    // G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
+    // radioactiveDecay->SetDecayConstant(lambda); // Set decay constant for Co-60
+    // radioactiveDecay->SetDecayMode(G4RadioactiveDecay::DecayMode::kBranchingRatios);
+    // radioactiveDecay->AddBranch(new G4RadioactiveDecayChannel("gamma", 1.0));
 
     // Define the Cobalt60
     G4String elementName = "Cobalt";
@@ -42,9 +42,9 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4Isotope *isotope = new G4Isotope(elementName, atomicNumber, atomicMass, abundance);
     
     // Register the isotope into the G4NistManager
-    G4NistManager *nistManager = G4NistManager::Instance();
-    nistManager->Insert(isotope);
-    isotope->SetDecayTable(decayTable);
+    // G4NistManager *nistManager = G4NistManager::Instance();
+    // nistManager->Insert(isotope);
+    // isotope->SetDecayTable(decayTable);
 
 /*
     // Bước 2: Đặt vị trí pos tại một vị trí ngẫu nhiên trong hình trụ Cobalt
@@ -77,8 +77,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
     fParticleGun->SetParticleEnergy(energy);
-    fParticleGun->SetCurrentSourceIntensity(decayConstant);
-    fParticleGun->SetParticleDefinition(particle);
+    // fParticleGun->SetCurrentSourceIntensity(decayConstant);
+    // fParticleGun->SetParticleDefinition(particle);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
 }

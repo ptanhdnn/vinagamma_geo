@@ -10,6 +10,7 @@
 #include "G4RotationMatrix.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4SubtractionSolid.hh"
+#include "G4SDManager.hh"
 
 #include "detector.hh"
 
@@ -24,15 +25,17 @@ public:
 
     G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
     virtual G4VPhysicalVolume *Construct();
+    // std::vector<G4LogicalVolume*> detectorLVs;
 
 protected:
     G4LogicalVolume *fScoringVolume = nullptr;
 
 private:
     G4LogicalVolume *logicDetector, *logicWorld;
-    MySensitiveDetector *senDet = new MySensitiveDetector("SensitiveDetector");
+    // MySensitiveDetector *senDet = new MySensitiveDetector("SensitiveDetector");
 
     virtual void ConstructSDandField();
+    G4LogicalVolume* flv_voxel;
 };
 
 #endif

@@ -9,11 +9,12 @@
 #include "construction.hh"
 #include "detector.hh"
 #include "generator.hh"
+#include "event.hh"
 
 class MyRunAction : public G4UserRunAction
 {
 public:
-    MyRunAction();
+    MyRunAction(MyEventAction *eventAction);
     ~MyRunAction();
 
     virtual void BeginOfRunAction(const G4Run*) override;
@@ -26,6 +27,7 @@ public:
 private:
     G4Accumulable<G4double> fEdep = 0.;
     G4Accumulable<G4double> fEdep2 = 0.;
+    MyEventAction *fEventAction = nullptr;
 };
 
 #endif

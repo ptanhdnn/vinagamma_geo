@@ -3,7 +3,8 @@
 #include "G4SystemOfUnits.hh"
 #include "G4AccumulableManager.hh"
 
-MyRunAction::MyRunAction()
+MyRunAction::MyRunAction(MyEventAction *eventAction)
+ : fEventAction(eventAction)
 {
     const G4double milligray = 1.e-3*gray;
     const G4double microgray = 1.e-6*gray;

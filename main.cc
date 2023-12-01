@@ -15,13 +15,15 @@
 int main(int argc, char** argv)
 {
     auto *runManager = G4RunManagerFactory::CreateRunManager();
-    G4int nThreads = 4;
-    runManager->SetNumberOfThreads(nThreads);
+#ifdef G4MULTITHREADED
+    runManager->SetNumberOfThreads(4);
+#endif
 
     G4UIExecutive* ui = 0;
 	if ( argc == 1 ) {
     ui = new G4UIExecutive(argc, argv);
 	}
+
 
     runManager->SetUserInitialization(new MyDetectorConstruction());
     runManager->SetUserInitialization(new MyPhysicsList());

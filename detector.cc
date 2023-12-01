@@ -71,6 +71,5 @@ void MySensitiveDetector::EndOfEvent(G4HCofThisEvent*)
             G4cout << "energy: " << aDose << " at " << posDet << " position in detector." << G4endl;
         }
     }
-    fHitsCollection->Reset();
 }
 

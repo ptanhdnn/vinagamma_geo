@@ -1,6 +1,6 @@
 #include "event.hh"
 
-MyEventAction::MyEventAction(MyRunAction* runAction): fRunAction(runAction)
+MyEventAction::MyEventAction()
 {}
 
 MyEventAction::~MyEventAction()

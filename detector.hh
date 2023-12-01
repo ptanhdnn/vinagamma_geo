@@ -29,5 +29,4 @@ private:
     TrackerHitsCollection *fHitsCollection = nullptr;
     MyEventAction *fEventAction = nullptr;
 };
-
 #endif

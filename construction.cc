@@ -115,9 +115,9 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     G4double detSizeZ = 3.95 *cm;
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
     // G4cout << "posDetX in loop: " << G4endl;
-    for (G4int k=0; k<10; k++){
-        for (G4int j=0; j<10; j++){
-            for (G4int i=0; i<10;i++){
+    for (G4int k=0; k<9; k++){
+        for (G4int j=0; j<9; j++){
+            for (G4int i=0; i<9;i++){
                 G4Box *solidDetector = new G4Box("solidDet", detSizeX*2, detSizeY*2, detSizeZ*2);
                 copyNo++;
                 logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detector_LV");
@@ -152,9 +152,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
     G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicWorld->SetVisAttributes(visAttributes);
 
-    for (G4int k=0; k<1; k++){
-        for (G4int j=0; j<4; j++){
-            for (G4int i=0; i<2; i++){
+    for (G4int k=0; k<2; k++){
+        for (G4int j=0; j<8; j++){
+            for (G4int i=0; i<4; i++){
                 createSmallBox(logicWorld, i, j, k);
             }
         }

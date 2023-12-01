@@ -108,6 +108,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *moth
 G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ){
     G4NistManager *nistManager = G4NistManager::Instance();
     G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+    
 
     G4double detSizeX = 2.95 *cm;
     G4double detSizeY = 1.95 *cm;
@@ -118,13 +119,14 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
         for (G4int j=0; j<10; j++){
             for (G4int i=0; i<10;i++){
                 G4Box *solidDetector = new G4Box("solidDet", detSizeX*2, detSizeY*2, detSizeZ*2);
+                copyNo++;
                 logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detector_LV");
-                G4double posDetX = posX + detSizeX * (i+1);
-                G4double posDetY = posY + detSizeY *(j+1);
-                G4double posDetZ = posZ + detSizeZ *(k+1);
+                G4double posDetX = posX + detSizeX * 2 * (i+1);
+                G4double posDetY = posY + detSizeY * 2 *(j+1);
+                G4double posDetZ = posZ + detSizeZ * 2 *(k+1);
                 G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
                 // G4cout << posDetX << G4endl;
-                G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysical", motherVolume, false, 0);
+                G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysical", motherVolume, false, copyNo);
                 // detectorLVs.push_back(logicDetector);
             }
         }

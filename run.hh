@@ -7,6 +7,7 @@
 #include "G4Accumulable.hh"
 
 #include "construction.hh"
+#include "detector.hh"
 #include "generator.hh"
 
 class MyRunAction : public G4UserRunAction

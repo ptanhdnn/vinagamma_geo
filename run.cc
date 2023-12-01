@@ -15,55 +15,52 @@ MyRunAction::MyRunAction()
     new G4UnitDefinition("nanogray" , "nanoGy"  , "Dose", nanogray);
     new G4UnitDefinition("picogray" , "picoGy"  , "Dose", picogray);
 
-    G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
-    accumulableManager->RegisterAccumulable(fEdep);
+    // G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
+    // accumulableManager->RegisterAccumulable(fEdep);
 
     auto manager = G4AnalysisManager::Instance();
     manager->SetDefaultFileType("root");
     manager->SetNtupleMerging(true);
     manager->SetVerboseLevel(1);
-    manager->SetFileName("data");
+    manager->SetFileName("doseData");
 
-    manager->CreateNtuple("Hits", "Hits");
-    manager->CreateNtupleIColumn("fEvent");
-    manager->CreateNtupleDColumn("fX");
-    manager->CreateNtupleDColumn("fY");
-    manager->CreateNtupleDColumn("fZ");
+    manager->CreateNtuple("Dose", "Dose data");
+    manager->CreateNtupleDColumn("Dose");
+    manager->CreateNtupleDColumn("XDet");
+    manager->CreateNtupleDColumn("YDet");
+    manager->CreateNtupleDColumn("ZDet");
+    manager->CreateNtupleIColumn("EventID");
     manager->FinishNtuple();
 
+    manager->SetNtupleFileName(0, "DoseMapnTuple");
 }
 MyRunAction::~MyRunAction()
-{
-    
-}
+{}
+
 void MyRunAction::BeginOfRunAction(const G4Run* run)
 {
-    G4AccumulableManager *accumulableManager = G4AccumulableManager::Instance();
-    accumulableManager->Reset();
     auto manager = G4AnalysisManager::Instance();
+    manager->Reset();
     manager->OpenFile();
     
 }
 
 void MyRunAction::EndOfRunAction(const G4Run* run)
 {
-    G4int nofEvent = run->GetNumberOfEvent();
-    if (nofEvent == 0) return;
+    // G4AccumulableManager *accumulableManager = G4AccumulableManager::Instance();
+    // accumulableManager->Merge();
 
-    G4AccumulableManager *accumulableManager = G4AccumulableManager::Instance();
-    accumulableManager->Merge();
+    // G4double edep = fEdep.GetValue();
+    // G4double edep2 = fEdep2.GetValue();
 
-    G4double edep = fEdep.GetValue();
-    G4double edep2 = fEdep2.GetValue();
+    // G4double rms = edep2 - edep*edep/nofEvent;
+    // if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;
 
-    G4double rms = edep2 - edep*edep/nofEvent;
-    if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;
-
-    const auto detConstruction = static_cast<const MyDetectorConstruction*>(
-        G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    G4double mass = detConstruction->GetScoringVolume()->GetMass();
-    G4double dose = edep/mass;
-    G4double rmsDose = rms/mass;
+    // const auto detConstruction = static_cast<const MyDetectorConstruction*>(
+    //     G4RunManager::GetRunManager()->GetUserDetectorConstruction());
+    // G4double mass = detConstruction->GetScoringVolume()->GetMass();
+    // G4double dose = edep/mass;
+    // G4double rmsDose = rms/mass;
 
     auto manager = G4AnalysisManager::Instance();
     manager->Write();

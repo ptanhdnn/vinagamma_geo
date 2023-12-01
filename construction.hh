@@ -26,6 +26,7 @@ public:
     G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
     virtual G4VPhysicalVolume *Construct();
     // std::vector<G4LogicalVolume*> detectorLVs;
+    G4int copyNo = 0;
 
 protected:
     G4LogicalVolume *fScoringVolume = nullptr;

@@ -15,6 +15,7 @@ MySensitiveDetector::MySensitiveDetector(const G4String& name,
 MySensitiveDetector::~MySensitiveDetector()
 {}
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void MySensitiveDetector::Initialize(G4HCofThisEvent *hce)
 {
     fHitsCollection = new TrackerHitsCollection(SensitiveDetectorName, collectionName[0]);
@@ -22,45 +23,54 @@ void MySensitiveDetector::Initialize(G4HCofThisEvent *hce)
     hce->AddHitsCollection(hcID, fHitsCollection);
 }
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist)
 {
+    const auto detConstruction = static_cast<const MyDetectorConstruction*>(
+        G4RunManager::GetRunManager()->GetUserDetectorConstruction()
+    );
+    G4double mass = detConstruction->GetScoringVolume()->GetMass();
+
     G4Track *track = aStep->GetTrack();
 
-    G4StepPoint *preStepPoint = aStep->GetPreStepPoint();
-    G4StepPoint *postStepPoint = aStep->GetPostStepPoint();
-
-    G4ThreeVector posPhoton = preStepPoint->GetPosition();
-
-    G4cout << "+++++++++++++++++++++++++++++++++++++++++++" << G4endl;
-
-    G4cout << "Step Status: " << preStepPoint->GetStepStatus() << G4endl;
-    G4cout << "Photon position: " << posPhoton << G4endl;
-
-    const G4VTouchable *touchable = aStep->GetPreStepPoint()->GetTouchable();
+    // Get copy number and physical volume information
+    const G4VTouchable* touchable = aStep->GetPreStepPoint()->GetTouchable();
     G4int copyNo = touchable->GetCopyNumber();
-    G4VPhysicalVolume *physVol = touchable->GetVolume();
+    G4VPhysicalVolume* physVol = touchable->GetVolume();
     G4ThreeVector posDetector = physVol->GetTranslation();
 
-    G4int evt = G4RunManager::GetRunManager()->GetCurrentEvent()->GetEventID();
-    G4AnalysisManager *manager = G4AnalysisManager::Instance();
-    manager->FillNtupleIColumn(0, evt);
-    manager->FillNtupleDColumn(1, posDetector[0]);
-    manager->FillNtupleDColumn(2, posDetector[1]);
-    manager->FillNtupleDColumn(3, posDetector[2]);
-    manager->AddNtupleRow(0);
-    // return true;
-
-    
+    G4double edep = aStep->GetTotalEnergyDeposit();
+    if(edep == 0.) return false;
+    TrackerHit *newHit = new TrackerHit();
+    newHit->SetDose(edep/mass);
+    newHit->SetTrackID(track->GetTrackID());
+    newHit->SetDetectorNb(copyNo);
+    newHit->SetPos(posDetector);
+    fHitsCollection->insert(newHit);
+  
     return true;
 }
 
 void MySensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-  if ( verboseLevel>1 ) {
-     G4int nofHits = fHitsCollection->entries();
-     G4cout << G4endl
+    if ( verboseLevel>1 ) {
+        G4int nofHits = fHitsCollection->entries();
+        G4cout << G4endl
             << "-------->Hits Collection: in this event they are " << nofHits
-            << " hits in the tracker chambers: " << G4endl;
-     for ( G4int i=0; i<nofHits; i++ ) (*fHitsCollection)[i]->Print();
-  }
+            << " hits in the tracker detector: " << G4endl;
+        for ( G4int i=0; i<nofHits; i++ ){
+            TrackerHit *hit = (*fHitsCollection)[i];
+            G4double aDose = hit->GetDose();
+            G4ThreeVector posDet = hit->GetPos();
+            auto it = (fEventAction->doseMap).find(posDet);
+            if(it != (fEventAction->doseMap).end()){
+                it->second += aDose;
+            } else {
+                (fEventAction->doseMap)[posDet] = aDose;
+            }
+            G4cout << "energy: " << aDose << " at " << posDet << " position in detector." << G4endl;
+        }
+    }
+    fHitsCollection->Reset();
 }
+

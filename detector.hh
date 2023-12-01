@@ -9,7 +9,9 @@
 #include "G4AnalysisManager.hh"
 #include "G4RunManager.hh"
 
+#include "construction.hh"
 #include "trackerhit.hh"
+#include "event.hh"
 
 class MySensitiveDetector : public G4VSensitiveDetector
 {
@@ -21,9 +23,11 @@ public:
     void Initialize(G4HCofThisEvent *hitCollection);
     G4bool ProcessHits(G4Step *step, G4TouchableHistory *history);
     void EndOfEvent(G4HCofThisEvent *hitCollection);
+    TrackerHitsCollection *GetHitCollection() const {return fHitsCollection;};
 
 private:
     TrackerHitsCollection *fHitsCollection = nullptr;
+    MyEventAction *fEventAction = nullptr;
 };
 
 #endif

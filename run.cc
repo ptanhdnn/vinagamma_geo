@@ -19,18 +19,31 @@ MyRunAction::MyRunAction(MyEventAction *eventAction)
     // G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
     // accumulableManager->RegisterAccumulable(fEdep);
 
+    
     auto manager = G4AnalysisManager::Instance();
     manager->SetDefaultFileType("root");
     manager->SetNtupleMerging(true);
     manager->SetVerboseLevel(1);
     manager->SetFileName("doseData");
 
+    // Book histogram, ntuple
+
+    // Creating 2D
+    manager->CreateH2("Dose Map XY", "Dose Histogram XY",
+                        100, -132., 132, 100, -132., 132);
+    manager->CreateH2("Dose Map XZ", "Dose Histogram XZ",
+                        100, -132., 132, 50, -90., 90);
+    
+    // Creating 3D
+    manager->CreateH3("Dose Map 3D", "Dose Histogram 3D",
+                        100, -132., 132, 100, -132., 132, 50, -90, 90);
+
+    // Creating ntuple
     manager->CreateNtuple("Dose", "Dose data");
     manager->CreateNtupleDColumn("Dose");
     manager->CreateNtupleDColumn("XDet");
     manager->CreateNtupleDColumn("YDet");
     manager->CreateNtupleDColumn("ZDet");
-    manager->CreateNtupleIColumn("EventID");
     manager->FinishNtuple();
 
     manager->SetNtupleFileName(0, "DoseMapnTuple");
@@ -65,7 +78,7 @@ void MyRunAction::EndOfRunAction(const G4Run* run)
 
     auto manager = G4AnalysisManager::Instance();
     manager->Write();
-    manager->CloseFile();
+    manager->CloseFile(false);
 }
 
 void MyRunAction::AddEdep(G4double edep)

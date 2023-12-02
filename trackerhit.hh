@@ -27,6 +27,7 @@ public:
     G4int GetDetectorNb() const   { return fDetectorNb; };
     G4double GetDose() const     { return fDose; };
     G4ThreeVector GetPos() const { return fPos; };
+    void Print();
 
 private:
     G4int         fTrackID = -1;

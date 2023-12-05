@@ -1,4 +1,5 @@
 #include "generator.hh"
+#include <ctime>
 
 MyPrimaryGenerator::MyPrimaryGenerator()
 {
@@ -17,6 +18,8 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     // G4ParticleDefinition *particle = particleTable->FindParticle(particleName);
     // Create a G4GeneralParticleSource object
     // Define the half-life of Co-60 in seconds
+    // G4long seed = time(nullptr);
+    // CLHEP::HepRandom::setTheSeed(seed);
     double halfLifeInSeconds = 5.26 * 365.25 * 24 * 3600; // 5.26 years
     double activityCi = 187.0; // Activity in kiloCuries
     double lambda = log(2.0) / halfLifeInSeconds; // Calculate decay constant

@@ -2,10 +2,14 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4AccumulableManager.hh"
+#include "G4SDManager.hh"
+#include "G4HCtable.hh"
 
 MyRunAction::MyRunAction(MyEventAction *eventAction)
  : fEventAction(eventAction)
 {
+    G4RunManager::GetRunManager()->SetPrintProgress(1);
+
     const G4double milligray = 1.e-3*gray;
     const G4double microgray = 1.e-6*gray;
     const G4double nanogray  = 1.e-9*gray;
@@ -22,9 +26,9 @@ MyRunAction::MyRunAction(MyEventAction *eventAction)
     
     auto manager = G4AnalysisManager::Instance();
     manager->SetDefaultFileType("root");
-    manager->SetNtupleMerging(true);
     manager->SetVerboseLevel(1);
-    manager->SetFileName("doseData");
+    manager->SetNtupleMerging(true);
+    // manager->SetFileName("doseData");
 
     // Book histogram, ntuple
 
@@ -46,7 +50,7 @@ MyRunAction::MyRunAction(MyEventAction *eventAction)
     manager->CreateNtupleDColumn("ZDet");
     manager->FinishNtuple();
 
-    manager->SetNtupleFileName(0, "DoseMapnTuple");
+    // manager->SetNtupleFileName(0, "DoseMapnTuple");
 }
 MyRunAction::~MyRunAction()
 {}
@@ -54,32 +58,55 @@ MyRunAction::~MyRunAction()
 void MyRunAction::BeginOfRunAction(const G4Run* run)
 {
     auto manager = G4AnalysisManager::Instance();
-    manager->Reset();
-    manager->OpenFile();
+    G4String fileName = "doseMap.root";
+    // manager->Reset();
+    manager->OpenFile(fileName);
+
+    G4SDManager *sdManager = G4SDManager::GetSDMpointer();
+    G4HCtable *hcTable = sdManager->GetHCtable();
+    G4int nEntries = hcTable->entries();
+    G4cout << nEntries << "+.+.+.+.+.+.+.+.++.=>=>+..====.+.>==" << G4endl;
+    if (nEntries == 0) {
+        G4cout << "Không có detector nào đã được đăng ký." << G4endl;
+        return;
+    }
     
+    G4cout << "Danh sách tất cả các tên detector:" << G4endl;
+    
+    for (G4int i = 0; i < nEntries; ++i) {
+        G4String detectorName = hcTable->GetSDname(i);
+        G4cout << "Detector " << i << ": " << detectorName << G4endl;
+    }
 }
 
 void MyRunAction::EndOfRunAction(const G4Run* run)
 {
-    // G4AccumulableManager *accumulableManager = G4AccumulableManager::Instance();
-    // accumulableManager->Merge();
-
-    // G4double edep = fEdep.GetValue();
-    // G4double edep2 = fEdep2.GetValue();
-
-    // G4double rms = edep2 - edep*edep/nofEvent;
-    // if (rms > 0.) rms = std::sqrt(rms); else rms = 0.;
-
-    // const auto detConstruction = static_cast<const MyDetectorConstruction*>(
-    //     G4RunManager::GetRunManager()->GetUserDetectorConstruction());
-    // G4double mass = detConstruction->GetScoringVolume()->GetMass();
-    // G4double dose = edep/mass;
-    // G4double rmsDose = rms/mass;
-
     auto manager = G4AnalysisManager::Instance();
-    manager->Write();
+
+    // Check if the histograms exist before writing
+    if (manager->GetH2(0) && manager->GetH2(1) && manager->GetH3(0))
+    {
+        // Check if the histograms have entries before writing
+        if (manager->GetH2(0)->entries() > 0 && manager->GetH2(1)->entries() > 0 && manager->GetH3(0)->entries() > 0)
+        {
+            // Write the data to the output file
+            manager->Write();
+            G4cout << "Data written to the output file." << G4endl;
+        }
+        else
+        {
+            G4cout << "No entries in the histograms. Not writing to the output file." << G4endl;
+        }
+    }
+    else
+    {
+        G4cout << "Histograms do not exist. Not writing to the output file." << G4endl;
+    }
+
+    // Close the output file
     manager->CloseFile(false);
 }
+
 
 void MyRunAction::AddEdep(G4double edep)
 {

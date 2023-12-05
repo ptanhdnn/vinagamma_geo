@@ -53,23 +53,21 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
 
 void MySensitiveDetector::EndOfEvent(G4HCofThisEvent*)
 {
-    if ( verboseLevel>1 ) {
-        G4int nofHits = fHitsCollection->entries();
-        G4cout << G4endl
-            << "-------->Hits Collection: in this event they are " << nofHits
-            << " hits in the tracker detector: " << G4endl;
-        for ( G4int i=0; i<nofHits; i++ ){
-            TrackerHit *hit = (*fHitsCollection)[i];
-            G4double aDose = hit->GetDose();
-            G4ThreeVector posDet = hit->GetPos();
-            auto it = (fEventAction->doseMap).find(posDet);
-            if(it != (fEventAction->doseMap).end()){
-                it->second += aDose;
-            } else {
-                (fEventAction->doseMap)[posDet] = aDose;
-            }
-            G4cout << "energy: " << aDose << " at " << posDet << " position in detector." << G4endl;
+    G4int nofHits = fHitsCollection->entries();
+    G4cout << G4endl
+        << "-------->Hits Collection: in this event they are " << nofHits
+        << " hits in the tracker detector: " << G4endl;
+    for ( G4int i=0; i<nofHits; i++ ){
+        TrackerHit *hit = (*fHitsCollection)[i];
+        G4double aDose = hit->GetDose();
+        G4ThreeVector posDet = hit->GetPos();
+        auto it = (fEventAction->doseMap).find(posDet);
+        if(it != (fEventAction->doseMap).end()){
+            it->second += aDose;
+        } else {
+            (fEventAction->doseMap)[posDet] = aDose;
         }
+        G4cout << "energy: " << aDose << " at " << posDet << " position in detector." << G4endl;
     }
 }
 

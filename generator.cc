@@ -69,9 +69,12 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4double cobaltZ = 20 * (G4UniformRand() - 0.5) *cm;
     G4ThreeVector pos(cobaltX, cobaltY, cobaltZ);
 
-    // Tạo hướng ngẫu nhiên cho các hạt trong không gian 3D
-    G4double theta = G4UniformRand() * CLHEP::pi;  // Góc θ ngẫu nhiên
-    G4double phi = G4UniformRand() * 2 * CLHEP::pi;  // Góc φ ngẫu nhiên
+    // // Tạo hướng ngẫu nhiên cho các hạt trong không gian 3D
+    // G4double theta = G4UniformRand() * CLHEP::pi;  // Góc θ ngẫu nhiên
+    // G4double phi = G4UniformRand() * 2 * CLHEP::pi;  // Góc φ ngẫu nhiên
+
+    G4double theta = -CLHEP::pi/4;
+    G4double phi = 0.5*CLHEP::pi/3;
 
     G4ThreeVector mom(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));  // Hướng ngẫu nhiên
 

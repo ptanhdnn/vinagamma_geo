@@ -8,7 +8,7 @@ MyEventAction::~MyEventAction()
 
 void MyEventAction::BeginOfEventAction(const G4Event*)
 {
-    fEdep = 0.;
+    G4cout << "From begining of EventAction" <<G4endl;
 }
 
 void MyEventAction::EndOfEventAction(const G4Event*)
@@ -24,6 +24,20 @@ void MyEventAction::EndOfEventAction(const G4Event*)
     //         }
     //     }
     // }
+    G4cout << "This is end of eventAction process." << G4endl;
+    G4SDManager *sdManager = G4SDManager::GetSDMpointer();
+    G4HCtable *hcTable = sdManager->GetHCtable();
+    G4int nEntries = hcTable->entries();
+    G4cout << nEntries << G4endl;
+    if (nEntries == 0) {
+        G4cout << "There is no detector register" << G4endl;
+        return;
+    }
+    
+    for (G4int i = 0; i < nEntries; ++i) {
+        G4String detectorName = hcTable->GetSDname(i);
+        G4cout << "Detector " << i << ": " << detectorName << G4endl;
+    }
 
     auto manager = G4AnalysisManager::Instance();
     for (auto it = doseMap.begin(); it != doseMap.end(); it++){

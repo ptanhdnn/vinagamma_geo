@@ -8,7 +8,7 @@
 MyRunAction::MyRunAction(MyEventAction *eventAction)
  : fEventAction(eventAction)
 {
-    G4RunManager::GetRunManager()->SetPrintProgress(1);
+    G4RunManager::GetRunManager()->SetPrintProgress(10);
 
     const G4double milligray = 1.e-3*gray;
     const G4double microgray = 1.e-6*gray;
@@ -62,25 +62,25 @@ void MyRunAction::BeginOfRunAction(const G4Run* run)
     // manager->Reset();
     manager->OpenFile(fileName);
 
+    
+}
+
+void MyRunAction::EndOfRunAction(const G4Run* run)
+{
     G4SDManager *sdManager = G4SDManager::GetSDMpointer();
     G4HCtable *hcTable = sdManager->GetHCtable();
     G4int nEntries = hcTable->entries();
-    G4cout << nEntries << "+.+.+.+.+.+.+.+.++.=>=>+..====.+.>==" << G4endl;
+    G4cout << nEntries << G4endl;
     if (nEntries == 0) {
-        G4cout << "Không có detector nào đã được đăng ký." << G4endl;
+        G4cout << "There is no detector register" << G4endl;
         return;
     }
-    
-    G4cout << "Danh sách tất cả các tên detector:" << G4endl;
     
     for (G4int i = 0; i < nEntries; ++i) {
         G4String detectorName = hcTable->GetSDname(i);
         G4cout << "Detector " << i << ": " << detectorName << G4endl;
     }
-}
-
-void MyRunAction::EndOfRunAction(const G4Run* run)
-{
+    
     auto manager = G4AnalysisManager::Instance();
 
     // Check if the histograms exist before writing

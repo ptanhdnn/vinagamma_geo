@@ -49,6 +49,7 @@ int main(int argc, char** argv)
     UImanager->ApplyCommand("/vis/viewer/set/autoRefresh true");
     UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
     UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
+    UImanager->ApplyCommand("/vis/scene/add/axes");
     // UImanager->ApplyCommand("/run/beamOn 1000");
     ui->SessionStart();
 

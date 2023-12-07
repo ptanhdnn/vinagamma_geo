@@ -18,6 +18,7 @@ void MyActionInitialization::Build() const
     SetUserAction(generator);
     MyEventAction *eventAction = new MyEventAction();
     SetUserAction(eventAction);
+    
     MyRunAction *runAction = new MyRunAction(eventAction);
     SetUserAction(runAction);
 }

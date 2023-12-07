@@ -19,13 +19,15 @@ public:
     MyDetectorConstruction();
     ~MyDetectorConstruction();
 
-    G4VPhysicalVolume *createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k);
+    G4VPhysicalVolume *createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k, G4int);
     G4VPhysicalVolume *createSourceBox(G4LogicalVolume *motherVolume);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
 
     G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
     virtual G4VPhysicalVolume *Construct();
     // std::vector<G4LogicalVolume*> detectorLVs;
+
+    G4int totalNo;
 
 protected:
     G4LogicalVolume *fScoringVolume = nullptr;
@@ -36,7 +38,7 @@ private:
 
     virtual void ConstructSDandField();
     G4LogicalVolume* flv_voxel;
-    G4int totalNo;
+    
 };
 
 #endif

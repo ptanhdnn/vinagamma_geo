@@ -10,6 +10,9 @@ MyPhysicsList::MyPhysicsList()
 
     // Decay physics
     RegisterPhysics(new G4DecayPhysics);
+    
+    // Radioactive Decay Physics
+    RegisterPhysics(new G4RadioactiveDecayPhysics);
 }
 
 MyPhysicsList::~MyPhysicsList()

@@ -34,6 +34,7 @@ private:
     G4int         fDetectorNb = -1;
     G4double      fDose = 0.;
     G4ThreeVector fPos;
+    
 };
 
 using TrackerHitsCollection = G4THitsCollection<TrackerHit>;

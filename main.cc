@@ -32,11 +32,7 @@ int main(int argc, char** argv)
     auto *ptrAnalysis = new MyAnalysis();
     G4double activity  = 1000000 * becquerel;//Activity is set via run.mac file
 	ptrAnalysis->setActivity(activity);
-    // G4RunManager *runManager = new G4RunManager();
 
-    // runManager->SetUserInitialization(new MyDetectorConstruction());
-    // runManager->SetUserInitialization(new MyPhysicsList());
-    // runManager->SetUserInitialization(new MyActionInitialization());
     runManager->Initialize();
 
     // G4UIExecutive *ui = new G4UIExecutive(argc, argv);
@@ -44,13 +40,13 @@ int main(int argc, char** argv)
     visManager->Initialize();
 
     G4UImanager *UImanager = G4UImanager::GetUIpointer();
-    UImanager->ApplyCommand("/vis/open OGL");
-    UImanager->ApplyCommand("/vis/drawVolume");
-    UImanager->ApplyCommand("/vis/viewer/set/autoRefresh true");
-    UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
-    UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
-    UImanager->ApplyCommand("/vis/scene/add/axes");
-    // UImanager->ApplyCommand("/run/beamOn 1000");
+    // UImanager->ApplyCommand("/vis/open OGL");
+    // UImanager->ApplyCommand("/vis/drawVolume");
+    // UImanager->ApplyCommand("/vis/viewer/set/autoRefresh true");
+    // UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
+    // UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
+    // UImanager->ApplyCommand("/vis/scene/add/axes");
+    UImanager->ApplyCommand("/control/execute run.mac");
     ui->SessionStart();
 
     return 0;

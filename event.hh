@@ -6,6 +6,7 @@
 
 #include "G4AnalysisManager.hh"
 #include "G4SDManager.hh"
+#include "detector.hh"
 
 class MyEventAction : public G4UserEventAction
 {
@@ -16,12 +17,10 @@ public:
     virtual void BeginOfEventAction(const G4Event* event) override;
     virtual void EndOfEventAction(const G4Event* event) override;
 
-    void AddEdep(G4double edep) {fEdep += edep;}
-    std::map<G4ThreeVector, G4double> doseMap;
-
 private:
-    // MyRunAction *fRunAction = nullptr;
-    G4double fEdep = 0.;
+    MySensitiveDetector *detector;
+
+    std::map<G4ThreeVector, G4double> doseMap;
 };
 
 #endif

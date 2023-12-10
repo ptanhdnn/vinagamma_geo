@@ -8,7 +8,7 @@
 MyRunAction::MyRunAction(MyEventAction *eventAction)
  : fEventAction(eventAction)
 {
-    G4RunManager::GetRunManager()->SetPrintProgress(10);
+    G4RunManager::GetRunManager()->SetPrintProgress(100);
 
     const G4double milligray = 1.e-3*gray;
     const G4double microgray = 1.e-6*gray;
@@ -40,7 +40,7 @@ MyRunAction::MyRunAction(MyEventAction *eventAction)
     
     // Creating 3D
     manager->CreateH3("Dose Map 3D", "Dose Histogram 3D",
-                        100, -132., 132, 100, -132., 132, 50, -90, 90);
+                        100, -132.*cm, 132*cm, 100, -132.*cm, 132*cm, 50, -90*cm, 90*cm, "cm", "cm", "cm");
 
     // Creating ntuple
     manager->CreateNtuple("Dose", "Dose data");
@@ -66,28 +66,14 @@ void MyRunAction::BeginOfRunAction(const G4Run* run)
 }
 
 void MyRunAction::EndOfRunAction(const G4Run* run)
-{
-    G4SDManager *sdManager = G4SDManager::GetSDMpointer();
-    G4HCtable *hcTable = sdManager->GetHCtable();
-    G4int nEntries = hcTable->entries();
-    G4cout << nEntries << G4endl;
-    if (nEntries == 0) {
-        G4cout << "There is no detector register" << G4endl;
-        return;
-    }
-    
-    for (G4int i = 0; i < nEntries; ++i) {
-        G4String detectorName = hcTable->GetSDname(i);
-        G4cout << "Detector " << i << ": " << detectorName << G4endl;
-    }
-    
+{    
     auto manager = G4AnalysisManager::Instance();
 
     // Check if the histograms exist before writing
     if (manager->GetH2(0) && manager->GetH2(1) && manager->GetH3(0))
     {
         // Check if the histograms have entries before writing
-        if (manager->GetH2(0)->entries() > 0 && manager->GetH2(1)->entries() > 0 && manager->GetH3(0)->entries() > 0)
+        if (manager->GetH2(0)->entries() == 0 && manager->GetH2(1)->entries() == 0 && manager->GetH3(0)->entries() == 0)
         {
             // Write the data to the output file
             manager->Write();
@@ -105,11 +91,4 @@ void MyRunAction::EndOfRunAction(const G4Run* run)
 
     // Close the output file
     manager->CloseFile(false);
-}
-
-
-void MyRunAction::AddEdep(G4double edep)
-{
-    fEdep  += edep;
-    fEdep2 += edep*edep;
 }

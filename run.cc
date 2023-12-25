@@ -34,9 +34,9 @@ MyRunAction::MyRunAction(MyEventAction *eventAction)
 
     // Creating 2D
     manager->CreateH2("Dose Map XY", "Dose Histogram XY",
-                        100, -132., 132, 100, -132., 132);
+                        100, -132.*cm, 132*cm, 100, -132.*cm, 132.*cm);
     manager->CreateH2("Dose Map XZ", "Dose Histogram XZ",
-                        100, -132., 132, 50, -90., 90);
+                        100, -132.*cm, 132*cm, 50, -90.*cm, 90*cm);
     
     // Creating 3D
     manager->CreateH3("Dose Map 3D", "Dose Histogram 3D",

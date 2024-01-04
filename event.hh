@@ -17,10 +17,10 @@ public:
     virtual void BeginOfEventAction(const G4Event* event) override;
     virtual void EndOfEventAction(const G4Event* event) override;
 
+    std::map<G4ThreeVector, G4double> doseMap;
+
 private:
     MySensitiveDetector *detector;
-
-    std::map<G4ThreeVector, G4double> doseMap;
 };
 
 #endif

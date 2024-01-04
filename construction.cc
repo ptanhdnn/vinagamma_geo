@@ -1,10 +1,6 @@
 #include "construction.hh"
 #include "G4PVParameterised.hh"
 
-typedef G4LogicalVolume G4LV;
-typedef G4PVPlacement G4PVP;
-typedef G4VisAttributes G4VA;
-
 MyDetectorConstruction::MyDetectorConstruction()
 {
     // totalNo = 0;
@@ -79,6 +75,9 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicTop->SetVisAttributes(visTop);
 
+    // ===================================================================================
+    // Tạo các detector trong mỗi thùng hàng
+    // ===================================================================================    
     createDetector(motherVolume, posX-boxX, posY-boxY, posZ-boxZ, totalNo);
 
     return physicalBox;
@@ -86,7 +85,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
 
 G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *motherVolume){
     G4NistManager *nistManager = G4NistManager::Instance();
-    G4Material *sourceMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+    G4Material *sourceMaterial = nistManager->FindOrBuildMaterial("G4_Cobalt");
 
     G4double sourceX = 6.0 *cm;
     G4double sourceY = 60.0 *cm;
@@ -109,23 +108,25 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *moth
 
 G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo){
     G4NistManager *nistManager = G4NistManager::Instance();
-    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_WATER");
+    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
     
 
-    G4double detSizeX = 2.95 *cm;
-    G4double detSizeY = 1.95 *cm;
+    G4double detSizeX = 29.5 *cm;
+    G4double detSizeY = 19.5 *cm;
     G4double detSizeZ = 3.95 *cm;
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
     // G4cout << "posDetX in loop: " << G4endl;
     for (G4int k=0; k<9; k++){  //9
-        for (G4int j=0; j<9; j++){
-            for (G4int i=0; i<9;i++){
-                G4Box *solidDetector = new G4Box("solidDet", detSizeX*2, detSizeY*2, detSizeZ*2);
+        for (G4int j=0; j<1; j++){
+            for (G4int i=0; i<1;i++){
+                G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
                 G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
                 logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detLVs_" + detID);
-                G4double posDetX = posX + detSizeX * 2 * (i+1);
-                G4double posDetY = posY + detSizeY * 2 *(j+1);
+                // G4double posDetX = posX + detSizeX * 2 * (i+1);
+                // G4double posDetY = posY + detSizeY * 2 *(j+1);
+                G4double posDetX = posX + detSizeX;
+                G4double posDetY = posY + detSizeY;
                 G4double posDetZ = posZ + detSizeZ * 2 *(k+1);
                 G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
                 G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhys_" + detID, motherVolume, false, totalNo, false);
@@ -141,7 +142,6 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
     G4NistManager *nistManager = G4NistManager::Instance();
     G4Material *airMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
-    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_WATER");
 
     G4double worldSizeX = 132.5 *cm;
     G4double worldSizeY = 165.0 *cm;
@@ -176,8 +176,8 @@ void MyDetectorConstruction::ConstructSDandField()
     G4cout << "Create SD collection " << G4endl;
     for(G4int no = 0; no < 8; no++){
         for (G4int k=0; k<9; k++){
-            for (G4int j=0; j<9; j++){
-                for (G4int i=0; i<9; i++){
+            for (G4int j=0; j<1; j++){
+                for (G4int i=0; i<1; i++){
                     G4String detName = "detLVs_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
                     G4String hcofDetName = "hc_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
                     auto aTrackerSD = new MySensitiveDetector(detName, hcofDetName);

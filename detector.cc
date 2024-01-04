@@ -55,7 +55,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
         const auto detConstruction = static_cast<const MyDetectorConstruction*>(
         G4RunManager::GetRunManager()->GetUserDetectorConstruction()
     );
-        // G4cout << "This is process Hits. 2 " <<G4endl;
+        // G4cout << "This is process Hits. 2 " << edep << G4endl;
         G4double mass = detConstruction->GetScoringVolume()->GetMass();
         // G4cout << "This is process Hits. 3 " <<G4endl;
         
@@ -100,12 +100,12 @@ void MySensitiveDetector::EndOfEvent(G4HCofThisEvent*)
                     doseMap[posDet] = aDose;
                 }
             }
-            G4cout << "=================================================" << G4endl;
+            // G4cout << "=================================================" << G4endl;
         }
     }
 }
 
-std::map<G4ThreeVector, G4double>MySensitiveDetector::GetDoseMap()
+std::map<G4ThreeVector, G4double>MySensitiveDetector::f_GetDoseMap()
 {
     return doseMap;
 }

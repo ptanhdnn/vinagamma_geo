@@ -24,7 +24,7 @@ public:
     void EndOfEvent(G4HCofThisEvent *hitCollection);
     TrackerHitsCollection *GetHitCollection() const {return fHitsCollection;};
     static std::map<G4ThreeVector, G4double> doseMap;
-    static std::map<G4ThreeVector, G4double>GetDoseMap();
+    static std::map<G4ThreeVector, G4double>f_GetDoseMap();
 
 private:
     TrackerHitsCollection *fHitsCollection = nullptr;

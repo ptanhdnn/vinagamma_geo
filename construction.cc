@@ -5,6 +5,7 @@ MyDetectorConstruction::MyDetectorConstruction()
 {
     // totalNo = 0;
 }
+
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
 
@@ -64,16 +65,16 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
 
     G4VPhysicalVolume *physicalTop = new G4PVPlacement(0, posTop, logicTop, "TopPhysical", motherVolume, false, 0);
 
-    // Màu sắc của logicBox
-    G4VisAttributes *visAttributesBox = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
-    logicBox->SetVisAttributes(visAttributesBox);
+    // // Màu sắc của logicBox
+    // G4VisAttributes *visAttributesBox = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
+    // logicBox->SetVisAttributes(visAttributesBox);
 
-    // Màu sắc của logicPackage
-    G4VisAttributes *visAttributesPackage = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-    logicPackage->SetVisAttributes(visAttributesPackage);
+    // // Màu sắc của logicPackage
+    // G4VisAttributes *visAttributesPackage = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    // logicPackage->SetVisAttributes(visAttributesPackage);
 
-    G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-    logicTop->SetVisAttributes(visTop);
+    // G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    // logicTop->SetVisAttributes(visTop);
 
     // ===================================================================================
     // Tạo các detector trong mỗi thùng hàng
@@ -83,27 +84,78 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     return physicalBox;
 }
 
-G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *motherVolume){
+G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *motherVolume, G4double posRodX, G4double posRodY, G4double posRodZ)
+{
+    G4ThreeVector posRod = G4ThreeVector(posRodX, posRodY, posRodZ);
+
     G4NistManager *nistManager = G4NistManager::Instance();
-    G4Material *sourceMaterial = nistManager->FindOrBuildMaterial("G4_Cobalt");
+    G4Material *rodMaterial = nistManager->FindOrBuildMaterial("G4_Co");
+    G4Material *shellMaterial = nistManager->FindOrBuildMaterial("G4_STAINLESS-STEEL");         // khai báo vỏ thanh inox cho thanh nguồn
 
-    G4double sourceX = 6.0 *cm;
-    G4double sourceY = 60.0 *cm;
-    G4double sourceZ = 42.5 *cm;
-    G4Box *solidSource = new G4Box("SourceCobalt", sourceX, sourceY, sourceZ);
-    G4LogicalVolume *logicSource = new G4LogicalVolume(solidSource, sourceMaterial, "sourceLogical");
+    // khai báo thanh nguồn bên trong
+    G4Tubs *rodSolid = new G4Tubs("CoRod", 0., dRod/2., lRod/2., 0*deg,360*deg);
+    G4LogicalVolume *rodLVs = new G4LogicalVolume(rodSolid, rodMaterial,"Co60Rod");
+    G4VPhysicalVolume *physicalRod = new G4PVPlacement(0, posRod, rodLVs, "RodPhys", motherVolume, false, 0);
 
-    // G4double posSourceX = -0.5 *cm;
-    // G4double posSourceY = -5.0 *cm;
-    // G4double posSourceZ = -5.0 *cm;
-    G4ThreeVector posSource = G4ThreeVector(0., 0., 0.);
+    // khai báo vỏ nguồn bên ngoài
+    G4Tubs *shellSolid = new G4Tubs("CoShell", dRod/2., dShell/2., lShell/2., 0*deg,360*deg);
+    G4LogicalVolume *shellLVs = new G4LogicalVolume(shellSolid, shellMaterial,"SourceShell");
+    G4VPhysicalVolume *physicalShell = new G4PVPlacement(0, posRod, shellLVs, "ShellPhys", motherVolume, false, 0);
 
-    G4VPhysicalVolume *physicalSource = new G4PVPlacement(0, posSource, logicSource, "sourcePhysical", motherVolume, false, 0);
+    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.0, 0.5, 0.3));
+    shellLVs->SetVisAttributes(visAttributes);
+}
 
-    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.0, 0.3, 0.5));
-    logicSource->SetVisAttributes(visAttributes);
+G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *motherVolume)
+{
+    /*
+    G4double dRod = 9.64 *mm;
+    G4double dShell = 11.1 *mm;
+    G4double lRod = 450. *mm;
+    G4double lShell = 451.6 *mm;
+    G4double massRod = 291. *g;
+    G4double densityInox = 8. *g/cm3;
 
-    return physicalSource;
+    Khoảng cách giữa 2 tầng ngang là 15cm
+    khoảng cách giữa 2 tầng dọc là 25cm
+
+    ////////////////////////////YY////////////////////////////
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            A             //            B             //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    ZZ//////////////////////////////////////////////////////ZZ
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            C             //             D            //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    ////////////////////////////YY////////////////////////////
+    */
+    
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *AlMaterial = nistManager->FindOrBuildMaterial("G4_Al");
+    G4Material *air = nistManager->FindOrBuildMaterial("G4_AIR");
+
+    G4int noOfRods = 38;
+    G4double frameX = 12.0 *mm;
+    G4double frameY = noOfRods * dShell + (noOfRods - 1) * distance2rods + 2 * distanceAB/2.;
+    G4double frameZ = 2 * distanceAC + 2 * lShell;
+
+    G4Box *solidFrame = new G4Box("SourceCobalt", frameX, frameY, frameZ);
+    G4LogicalVolume *frameLVs = new G4LogicalVolume(solidFrame, air, "FrameLogical");
+
+    for (G4int i = 0; i < noOfRods; i ++){
+        createSourceRod(motherVolume, 0., - distanceAB/2. - (i+1) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, 0., distanceAB/2. + (i+1) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, 0., - distanceAB/2. - (i+1) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, 0., distanceAB/2. + (i+1) * dShell, - distanceAC/2. - lShell/2.);
+    }
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo){
@@ -162,7 +214,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
         }
     }
 
-    createSourceBox(logicWorld);
+    createSourceFrame(logicWorld);
 
     ConstructSDandField();
     // delete senDet;

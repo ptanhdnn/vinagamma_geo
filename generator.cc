@@ -13,11 +13,6 @@ MyPrimaryGenerator::~MyPrimaryGenerator()
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 {
-    // G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
-    // G4String particleName = "gamma";
-    // G4ParticleDefinition *particle = particleTable->FindParticle(particleName);
-    // Create a G4GeneralParticleSource object
-    // Define the half-life of Co-60 in seconds
     G4long seed = time(nullptr);
     CLHEP::HepRandom::setTheSeed(seed);
     double halfLifeInSeconds = 5.26 * 365.25 * 24 * 3600; // 5.26 years
@@ -28,15 +23,6 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     double activityBq = activityCi * 1e3 * 3.7e10; // 1 Ci = 3.7e10 Bq
     double decayConstant = lambda * activityBq;
 
-    // Create a G4RadioactiveDecay object
-    G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-
-    // Create a G4DecayTable and set the decay constant for Co-60
-    // G4RadioactiveDecay* radioactiveDecay = new G4RadioactiveDecay();
-    // radioactiveDecay->SetDecayConstant(lambda); // Set decay constant for Co-60
-    // radioactiveDecay->SetDecayMode(G4RadioactiveDecay::DecayMode::kBranchingRatios);
-    // radioactiveDecay->AddBranch(new G4RadioactiveDecayChannel("gamma", 1.0));
-
     // Define the Cobalt60
     G4String elementName = "Cobalt";
     G4int Z = 27;
@@ -44,6 +30,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4double charge = 0. *eplus;
     // G4double energy = 0. *keV;
 
+    generateBeamFrame();
 /*
     // Bước 2: Đặt vị trí pos tại một vị trí ngẫu nhiên trong hình trụ Cobalt
     G4double cobaltSourceRadius = 1.0 * cm; // Bán kính của hình trụ
@@ -82,8 +69,33 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     fParticleGun->SetParticlePosition(pos);
     fParticleGun->SetParticleMomentumDirection(mom);
     fParticleGun->SetParticleEnergy(energy);
-    // fParticleGun->SetCurrentSourceIntensity(decayConstant);
-    // fParticleGun->SetParticleDefinition(particle);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
+}
+
+// chọn random thanh nguồn phát với tên các thanh rodLVs
+void MyPrimaryGenerator::generateBeamFrame()
+{
+    G4double randNumber = G4UniformRand();
+
+    G4int noFrame = std::round(randNumber*4) + 1;
+    G4String nameFrame = "A";
+    switch (noFrame)
+    {
+    case 2:
+        nameFrame = "B";
+        break;
+    case 3:
+        nameFrame = "C";
+        break;
+    case 4:
+        nameFrame = "D";
+        break;
+    }
+
+    G4int noRod = std::round(randNumber*38);
+
+    G4String nameRodLV = nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
+    G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
 }

@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 {
     auto *runManager = G4RunManagerFactory::CreateRunManager();
 #ifdef G4MULTITHREADED
-    runManager->SetNumberOfThreads(4);
+    runManager->SetNumberOfThreads(40);
 #endif
 
     G4UIExecutive* ui = 0;

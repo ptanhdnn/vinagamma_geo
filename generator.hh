@@ -21,7 +21,7 @@ private:
     void generateBeamFrame();
 
 public:
-    MyPrimaryGenerator (/* args */);
+    MyPrimaryGenerator ();
     ~MyPrimaryGenerator ();
 
     virtual void GeneratePrimaries(G4Event*anEvent);

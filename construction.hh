@@ -22,7 +22,7 @@ public:
 
     G4VPhysicalVolume *createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k, G4int);
     G4VPhysicalVolume *createSourceFrame(G4LogicalVolume *motherVolume);
-    G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4double posRodX, G4double posRodY, G4double posRodZ);
+    G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
 
     G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};

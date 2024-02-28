@@ -20,11 +20,15 @@ private:
     G4ParticleGun *fParticleGun;
     void generateBeamFrame();
 
+
 public:
     MyPrimaryGenerator ();
     ~MyPrimaryGenerator ();
 
     virtual void GeneratePrimaries(G4Event*anEvent);
+    // virtual G4VPhysicalVolume *createSourceFrame(G4LogicalVolume *motherVolume);
+    // virtual G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ);
+
 };
 
 #endif

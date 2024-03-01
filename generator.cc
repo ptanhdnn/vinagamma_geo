@@ -30,7 +30,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4double charge = 0. *eplus;
     // G4double energy = 0. *keV;
 
-    generateBeamFrame();
+    G4ThreeVector posGenBeam = generateBeamFrame();
 /*
     // Bước 2: Đặt vị trí pos tại một vị trí ngẫu nhiên trong hình trụ Cobalt
     G4double cobaltSourceRadius = 1.0 * cm; // Bán kính của hình trụ
@@ -46,10 +46,10 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 
     G4ThreeVector pos(x, y, z);
 */
-    G4double cobaltX = (G4UniformRand() <0.5) ? -0.5 *cm : 0.5 *cm;
-    G4double cobaltY = 20 * (G4UniformRand() - 0.5) *cm;
-    G4double cobaltZ = 20 * (G4UniformRand() - 0.5) *cm;
-    G4ThreeVector pos(cobaltX, cobaltY, cobaltZ);
+    // G4double cobaltX = (G4UniformRand() <0.5) ? -0.5 *cm : 0.5 *cm;
+    // G4double cobaltY = 20 * (G4UniformRand() - 0.5) *cm;
+    // G4double cobaltZ = 20 * (G4UniformRand() - 0.5) *cm;
+    // G4ThreeVector pos(cobaltX, cobaltY, cobaltZ);
 
     // // Tạo hướng ngẫu nhiên cho các hạt trong không gian 3D
     // G4double theta = G4UniformRand() * CLHEP::pi;  // Góc θ ngẫu nhiên
@@ -66,7 +66,7 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
     G4ParticleDefinition *ion = G4IonTable::GetIonTable()->GetIon(Z, A, energy); 
     fParticleGun->SetParticleDefinition(ion);
     fParticleGun->SetParticleCharge(charge);
-    fParticleGun->SetParticlePosition(pos);
+    fParticleGun->SetParticlePosition(posGenBeam);
     fParticleGun->SetParticleMomentumDirection(mom);
     fParticleGun->SetParticleEnergy(energy);
 
@@ -74,11 +74,24 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 }
 
 // chọn random thanh nguồn phát với tên các thanh rodLVs
-void MyPrimaryGenerator::generateBeamFrame()
+G4ThreeVector MyPrimaryGenerator::generateBeamFrame()
 {
     G4double randNumber = G4UniformRand();
+    G4double randSource = G4UniformRand();
 
-    G4int noFrame = std::round(randNumber*4) + 1;
+    G4int noSource = std::round(randSource*2) + 1;
+    G4String nameSource = "F1";
+    switch (noSource)
+    {
+    case 2:
+        nameSource = "F2";
+        break;
+    case 3:
+        nameSource = "F3";
+        break;
+    }
+
+    G4int noFrame = std::round(randNumber*3) + 1;
     G4String nameFrame = "A";
     switch (noFrame)
     {
@@ -93,12 +106,69 @@ void MyPrimaryGenerator::generateBeamFrame()
         break;
     }
 
-    G4int noRod = std::round(randNumber*38);
+    G4int noRod = std::round(randNumber*37);
 
-    G4String nameRodLV = nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
     G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
     G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
+    G4ThreeVector posSource = SetPositionOfBeam(nameSource, nameFrame, noRod);
+
+    return posSource;
 }
+
+G4ThreeVector MyPrimaryGenerator::SetPositionOfBeam(G4String nameSource, G4String nameFrame, G4int noRod)
+{
+    // Bước 2: Đặt vị trí pos tại một vị trí ngẫu nhiên trong hình trụ Cobalt
+
+    G4double dRod = 9.64 *mm;
+    G4double dShell = 11.1 *mm;
+    G4double lRod = 450. *mm;
+    G4double lShell = 451.6 *mm;
+    G4double distance2rods = 2.6 *mm;
+    G4double distanceAB = 50. *mm; //150*mm
+    G4double distanceAC = 250. *mm;
+    G4double distanceBetween2Frame = 2* 150. *mm;
+
+    // Định nghĩa vị trí tọa độ theo thanh
+
+    G4double positionOfSource = 0. *mm;
+    if(nameSource == "F1"){
+        positionOfSource = 2 * (38 * dShell + 37 * distance2rods + distanceAB);
+    } else if(nameSource == "F3"){
+        positionOfSource = - 2 * (38 * dShell + 37 * distance2rods + distanceAB);
+    }
+    
+    if(nameFrame == "A"){
+        G4double positionOfFrameY = -distanceAB/2. - (noRod+1) * dShell;
+        G4double positionOfFrameZ = distanceAC/2. + lShell/2.;
+    } else if(nameFrame == "B"){
+        G4double positionOfFrameY =  distanceAB/2. + (noRod+1) * dShell;
+        G4double positionOfFrameZ = distanceAC/2. + lShell/2.;
+    } else if(nameFrame == "C"){
+        G4double positionOfFrameY = -distanceAB/2. - (noRod+1) * dShell;
+        G4double positionOfFrameZ = - distanceAC/2. - lShell/2.;
+    } else if(nameFrame == "D"){
+        G4double positionOfFrameY = distanceAB/2. + (noRod+1) * dShell;
+        G4double positionOfFrameZ = - distanceAC/2. - lShell/2.;
+    }
+
+    G4double positionOfRodY = positionOfSource + positionOfFrameY;
+
+    G4double positionOfRodZ = positionOfSource + positionOfFrameZ;
+
+    G4double randomRadius = dRod/2. * std::sqrt(G4UniformRand()); // Bán kính ngẫu nhiên trong hình trụ
+
+    G4double randomAngle = G4UniformRand() * 2 * CLHEP::pi; // Góc ngẫu nhiên trong hình trụ
+
+    G4double x = randomRadius * std::cos(randomAngle);
+    G4double y = randomRadius * std::sin(randomAngle) + positionOfRodY;
+    G4double z = G4UniformRand() * lRod + positionOfRodZ; // Chọn một chiều dài ngẫu nhiên trong hình trụ
+
+    G4ThreeVector pos(x, y, z);
+
+    return pos;
+}
+
 /*
 G4VPhysicalVolume *MyPrimaryGenerator::createSourceRod(G4LogicalVolume *motherVolume, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ)
 {

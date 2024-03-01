@@ -84,7 +84,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     return physicalBox;
 }
 
-G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *motherVolume, G4String f, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ)
+G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *motherVolume, G4String nameSource, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ)
 {
     G4ThreeVector posRod = G4ThreeVector(posRodX, posRodY, posRodZ);
 
@@ -94,7 +94,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *moth
 
 // khai báo thanh nguồn bên trong
     G4Tubs *rodSolid = new G4Tubs("CoRod", 0., dRod/2., lRod/2., 0*deg, 360*deg);
-    G4String rodName = f + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    G4String rodName = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
     G4LogicalVolume *rodLVs = new G4LogicalVolume(rodSolid, rodMaterial, rodName);
     G4VPhysicalVolume *physicalRod = new G4PVPlacement(0, posRod, rodLVs, "RodPhys", motherVolume, false, 0);
 
@@ -109,13 +109,14 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *moth
 
 G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *motherVolume)
 {
+/*
     G4double dRod = 9.64 *mm;
     G4double dShell = 11.1 *mm;
     G4double lRod = 450. *mm;
     G4double lShell = 451.6 *mm;
     G4double massRod = 291. *g;
     G4double densityInox = 8. *g/cm3;
-/*
+
     Khoảng cách giữa 2 tầng ngang là 15cm
     khoảng cách giữa 2 tầng dọc là 25cm
 
@@ -143,8 +144,8 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *mo
     G4Material *air = nistManager->FindOrBuildMaterial("G4_AIR");
 
     G4int noOfRods = 38;
-    G4double frameX = 12.0 *mm;
-    G4double frameY = noOfRods * dShell + (noOfRods - 1) * distance2rods + 2 * distanceAB/2.;
+    G4double frameX = dShell;
+    G4double frameY = 2 * (noOfRods * dShell + (noOfRods - 1) * distance2rods + distanceAB);
     G4double frameZ = 2 * distanceAC + 2 * lShell;
 
     G4Box *solidFrame = new G4Box("SourceCobalt", frameX, frameY, frameZ);
@@ -152,22 +153,22 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *mo
 
     for (G4int i = 0; i < noOfRods; i ++){
         // Frame 1 (left)
-        // createSourceRod(motherVolume, "F1", i, "A", 0., -distanceAB - distance2Frame - distanceAB/2. - (i+1) * dShell, distanceAC/2. + lShell/2.);
-        // createSourceRod(motherVolume, "F1", i, "B", 0., -distanceAB - distance2Frame + distanceAB/2. + (i+1) * dShell, distanceAC/2. + lShell/2.);
-        // createSourceRod(motherVolume, "F1", i, "C", 0., -distanceAB - distance2Frame - distanceAB/2. - (i+1) * dShell, - distanceAC/2. - lShell/2.);
-        // createSourceRod(motherVolume, "F1", i, "D", 0., -distanceAB - distance2Frame + distanceAB/2. + (i+1) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "A", 0., -frameY - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "B", 0., -frameY + distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "C", 0., -frameY - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "D", 0., -frameY + distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
 
         // Frame 2
-        createSourceRod(motherVolume, "F2", i, "A", 0., - distanceAB/2. - (i+1) * dShell, distanceAC/2. + lShell/2.);
-        createSourceRod(motherVolume, "F2", i, "B", 0., distanceAB/2. + (i+1) * dShell, distanceAC/2. + lShell/2.);
-        createSourceRod(motherVolume, "F2", i, "C", 0., - distanceAB/2. - (i+1) * dShell, - distanceAC/2. - lShell/2.);
-        createSourceRod(motherVolume, "F2", i, "D", 0., distanceAB/2. + (i+1) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "A", 0., - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "B", 0., distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "C", 0., - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "D", 0., distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
 
         // // Frame 3 (right)
-        // createSourceRod(motherVolume, "F3", i, "A", 0., distanceAB + distance2Frame - distanceAB/2. - (i+1) * dShell, distanceAC/2. + lShell/2.);
-        // createSourceRod(motherVolume, "F3", i, "B", 0., distanceAB + distance2Frame + distanceAB/2. + (i+1) * dShell, distanceAC/2. + lShell/2.);
-        // createSourceRod(motherVolume, "F3", i, "C", 0., distanceAB + distance2Frame - distanceAB/2. - (i+1) * dShell, - distanceAC/2. - lShell/2.);
-        // createSourceRod(motherVolume, "F3", i, "D", 0., distanceAB + distance2Frame + distanceAB/2. + (i+1) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "A", 0., frameY - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "B", 0., frameY + distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "C", 0., frameY - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "D", 0., frameY + distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
     }
 }
 

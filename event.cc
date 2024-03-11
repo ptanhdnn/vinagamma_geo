@@ -1,16 +1,18 @@
 #include "event.hh"
 
 MyEventAction::MyEventAction()
-{}
+{
+    G4RunManager::GetRunManager()->SetPrintProgress(1000);
+}
 
 MyEventAction::~MyEventAction()
 {}
 
 void MyEventAction::BeginOfEventAction(const G4Event*)
 {
-    G4cout << "==========================================================================" << G4endl
-            << "From begining of EventAction" <<G4endl
-            << "==========================================================================" << G4endl;
+    // G4cout << "==========================================================================" << G4endl
+    //         << "From begining of EventAction" <<G4endl
+    //         << "==========================================================================" << G4endl;
 }
 
 void MyEventAction::EndOfEventAction(const G4Event*)
@@ -33,9 +35,9 @@ void MyEventAction::EndOfEventAction(const G4Event*)
     //     G4cout << "Position: (" << posDet.x() << ", " << posDet.y() << ", " << posDet.z() << "), Edep: " << edep << G4endl;
     // }
 
-    G4cout << "==========================================================================" << G4endl
-            << "End of EventAction" <<G4endl
-            << "==========================================================================" << G4endl;
+    // G4cout << "==========================================================================" << G4endl
+    //         << "End of EventAction" <<G4endl
+    //         << "==========================================================================" << G4endl;
 
     G4double maxDose = -1;
 
@@ -54,7 +56,7 @@ void MyEventAction::EndOfEventAction(const G4Event*)
         manager->FillNtupleDColumn(3, posDet.z());
         manager->AddNtupleRow();
 
-        G4cout << "; dose size: " << doseMap.size() << G4endl;
+        // G4cout << "; dose size: " << doseMap.size() << G4endl;
     }
     // G4cout <<"This is size of1 event: " << doseMap.size() << G4endl;
 }

@@ -16,7 +16,8 @@ int main(int argc, char** argv)
 {
     auto *runManager = G4RunManagerFactory::CreateRunManager();
 #ifdef G4MULTITHREADED
-    runManager->SetNumberOfThreads(4);
+    G4cout << "Running the multithreaded process" << G4endl;
+    runManager->SetNumberOfThreads(40);
 #endif
 
     G4UIExecutive* ui = 0;

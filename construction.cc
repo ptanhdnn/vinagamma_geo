@@ -5,6 +5,7 @@ MyDetectorConstruction::MyDetectorConstruction()
 {
     // totalNo = 0;
 }
+
 MyDetectorConstruction::~MyDetectorConstruction()
 {}
 
@@ -64,16 +65,16 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
 
     G4VPhysicalVolume *physicalTop = new G4PVPlacement(0, posTop, logicTop, "TopPhysical", motherVolume, false, 0);
 
-    // Màu sắc của logicBox
-    G4VisAttributes *visAttributesBox = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
-    logicBox->SetVisAttributes(visAttributesBox);
+    // // Màu sắc của logicBox
+    // G4VisAttributes *visAttributesBox = new G4VisAttributes(G4Colour(1.0, 0.5, 1.0));
+    // logicBox->SetVisAttributes(visAttributesBox);
 
-    // Màu sắc của logicPackage
-    G4VisAttributes *visAttributesPackage = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-    logicPackage->SetVisAttributes(visAttributesPackage);
+    // // Màu sắc của logicPackage
+    // G4VisAttributes *visAttributesPackage = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    // logicPackage->SetVisAttributes(visAttributesPackage);
 
-    G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
-    logicTop->SetVisAttributes(visTop);
+    // G4VisAttributes *visTop = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
+    // logicTop->SetVisAttributes(visTop);
 
     // ===================================================================================
     // Tạo các detector trong mỗi thùng hàng
@@ -83,46 +84,131 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     return physicalBox;
 }
 
-G4VPhysicalVolume *MyDetectorConstruction::createSourceBox(G4LogicalVolume *motherVolume){
+G4VPhysicalVolume *MyDetectorConstruction::createSourceRod(G4LogicalVolume *motherVolume, G4String nameSource, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ)
+{
+    G4ThreeVector posRod = G4ThreeVector(posRodX, posRodY, posRodZ);
+
     G4NistManager *nistManager = G4NistManager::Instance();
-    G4Material *sourceMaterial = nistManager->FindOrBuildMaterial("G4_Cobalt");
+    G4Material *rodMaterial = nistManager->FindOrBuildMaterial("G4_Co");
+    G4Material *shellMaterial = nistManager->FindOrBuildMaterial("G4_STAINLESS-STEEL");         // khai báo vỏ thanh inox cho thanh nguồn
 
-    G4double sourceX = 6.0 *cm;
-    G4double sourceY = 60.0 *cm;
-    G4double sourceZ = 42.5 *cm;
-    G4Box *solidSource = new G4Box("SourceCobalt", sourceX, sourceY, sourceZ);
-    G4LogicalVolume *logicSource = new G4LogicalVolume(solidSource, sourceMaterial, "sourceLogical");
+// khai báo thanh nguồn bên trong
+    G4Tubs *rodSolid = new G4Tubs("CoRod", 0., dRod/2., lRod/2., 0*deg, 360*deg);
+    G4String rodName = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    G4LogicalVolume *rodLVs = new G4LogicalVolume(rodSolid, rodMaterial, rodName);
+    G4VPhysicalVolume *physicalRod = new G4PVPlacement(0, posRod, rodLVs, "RodPhys", motherVolume, false, 0);
 
-    // G4double posSourceX = -0.5 *cm;
-    // G4double posSourceY = -5.0 *cm;
-    // G4double posSourceZ = -5.0 *cm;
-    G4ThreeVector posSource = G4ThreeVector(0., 0., 0.);
+// khai báo vỏ nguồn bên ngoài
+    G4Tubs *shellSolid = new G4Tubs("CoShell", dRod/2., dShell/2., lShell/2., 0*deg, 360*deg);
+    G4LogicalVolume *shellLVs = new G4LogicalVolume(shellSolid, shellMaterial,"SourceShell");
+    G4VPhysicalVolume *physicalShell = new G4PVPlacement(0, posRod, shellLVs, "ShellPhys", motherVolume, false, 0);
 
-    G4VPhysicalVolume *physicalSource = new G4PVPlacement(0, posSource, logicSource, "sourcePhysical", motherVolume, false, 0);
+    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.0, 0.5, 0.3));
+    shellLVs->SetVisAttributes(visAttributes);
+}
 
-    G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(0.0, 0.3, 0.5));
-    logicSource->SetVisAttributes(visAttributes);
+G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *motherVolume)
+{
+/*
+    G4double dRod = 9.64 *mm;
+    G4double dShell = 11.1 *mm;
+    G4double lRod = 450. *mm;
+    G4double lShell = 451.6 *mm;
+    G4double massRod = 291. *g;
+    G4double densityInox = 8. *g/cm3;
 
-    return physicalSource;
+    Khoảng cách giữa 2 tầng ngang là 15cm
+    khoảng cách giữa 2 tầng dọc là 25cm
+
+    ////////////////////////////YY////////////////////////////
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            A             //            B             //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    ZZ//////////////////////////////////////////////////////ZZ
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            C             //             D            //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    ////////////////////////////YY////////////////////////////
+*/      
+    
+    G4NistManager *nistManager = G4NistManager::Instance();
+    G4Material *AlMaterial = nistManager->FindOrBuildMaterial("G4_Al");
+    G4Material *air = nistManager->FindOrBuildMaterial("G4_AIR");
+
+    G4int noOfRods = 38;
+    G4double frameX = dShell;
+    G4double frameY = 2 * (noOfRods * dShell + (noOfRods - 1) * distance2rods + distanceAB);
+    G4double frameZ = 2 * distanceAC + 2 * lShell;
+
+    G4Box *solidFrame = new G4Box("SourceCobalt", frameX, frameY, frameZ);
+    G4LogicalVolume *frameLVs = new G4LogicalVolume(solidFrame, air, "FrameLogical");
+
+    for (G4int i = 0; i < noOfRods; i ++){
+        // Frame 1 (left)
+        createSourceRod(motherVolume, "F1", i, "A", 0., -frameY - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "B", 0., -frameY + distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "C", 0., -frameY - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F1", i, "D", 0., -frameY + distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+
+        // Frame 2
+        createSourceRod(motherVolume, "F2", i, "A", 0., - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "B", 0., distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "C", 0., - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F2", i, "D", 0., distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+
+        // // Frame 3 (right)
+        createSourceRod(motherVolume, "F3", i, "A", 0., frameY - distanceAB/2. - (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F3", i, "B", 0., frameY + distanceAB/2. + (i+0.5) * dShell, distanceAC/2. + lShell/2.);
+        createSourceRod(motherVolume, "F3", i, "C", 0., frameY - distanceAB/2. - (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+        createSourceRod(motherVolume, "F3", i, "D", 0., frameY + distanceAB/2. + (i+0.5) * dShell, - distanceAC/2. - lShell/2.);
+    }
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo){
     G4NistManager *nistManager = G4NistManager::Instance();
-    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
-    
 
-    G4double detSizeX = 29.5 *cm;
-    G4double detSizeY = 19.5 *cm;
+    G4double pVwater = 4.*perCent;
+    G4double pVclobenzen = 24.*perCent;
+    G4double pVEthanol = 72.*perCent;
+    G4double denWater  = 1.*g/cm3;
+    G4double denCloBenzen = 1.11*g/cm3;
+    G4double denEthanol = 789*kg/m3;
+
+    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+    G4double denECB =  pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol;
+    G4double pMwater = pVwater*denWater/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4double pMclobenzen = pVclobenzen*denCloBenzen/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4double pMethanol = pVEthanol*denEthanol/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+    G4Material* clobenzen = G4NistManager::Instance()->FindOrBuildMaterial("G4_CHLOROBENZENE");
+    G4Material* ethanol = G4NistManager::Instance()->FindOrBuildMaterial("G4_ETHYL_ALCOHOL");
+    ECB = new G4Material("ECB",denECB,3);
+    ECB->AddMaterial(water,pMwater);
+    ECB->AddMaterial(clobenzen,pMclobenzen);
+    ECB->AddMaterial(ethanol,pMethanol);
+        
+
+    G4double detSizeX = 2.95 *cm;
+    G4double detSizeY = 1.95 *cm;
     G4double detSizeZ = 3.95 *cm;
+    detMass  = detSizeX * detSizeY * detSizeZ * denECB;
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
     // G4cout << "posDetX in loop: " << G4endl;
     for (G4int k=0; k<9; k++){  //9
-        for (G4int j=0; j<1; j++){
-            for (G4int i=0; i<1;i++){
+        for (G4int j=0; j<9; j++){
+            for (G4int i=0; i<9;i++){
                 G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
                 G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-                logicDetector = new G4LogicalVolume(solidDetector, detMaterial, "detLVs_" + detID);
+                logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
                 // G4double posDetX = posX + detSizeX * 2 * (i+1);
                 // G4double posDetY = posY + detSizeY * 2 *(j+1);
                 G4double posDetX = posX + detSizeX;
@@ -136,7 +222,6 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     // G4cout << "===========================================" << G4endl
     //    << "Get Total Number " << totalNo << G4endl
     //    << "==========================================" << G4endl;
-    fScoringVolume = logicDetector;
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
@@ -152,9 +237,9 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
     G4VisAttributes *visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 1.0));
     logicWorld->SetVisAttributes(visAttributes);
     G4int totalNo = 0;
-    for (G4int k=0; k<1; k++){                  // tầng
-        for (G4int j=0; j<4; j++){              // hàng dài (bề ngang)
-            for (G4int i=0; i<2; i++){          // hàng ngắn (bề dọc)
+    for (G4int k=0; k<2; k++){                  // tầng
+        for (G4int j=0; j<8; j++){              // hàng dài (bề ngang)
+            for (G4int i=0; i<4; i++){          // hàng ngắn (bề dọc)
             // theo thứ tự sẽ là từ dưới lên trên, lần lượt hàng dài sẽ thêm 4 ô ngắn
                 createSmallBox(logicWorld, i, j, k, totalNo);
                 totalNo++;
@@ -162,7 +247,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
         }
     }
 
-    createSourceBox(logicWorld);
+    createSourceFrame(logicWorld);
 
     ConstructSDandField();
     // delete senDet;
@@ -176,8 +261,8 @@ void MyDetectorConstruction::ConstructSDandField()
     G4cout << "Create SD collection " << G4endl;
     for(G4int no = 0; no < 8; no++){
         for (G4int k=0; k<9; k++){
-            for (G4int j=0; j<1; j++){
-                for (G4int i=0; i<1; i++){
+            for (G4int j=0; j<9; j++){
+                for (G4int i=0; i<9; i++){
                     G4String detName = "detLVs_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
                     G4String hcofDetName = "hc_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
                     auto aTrackerSD = new MySensitiveDetector(detName, hcofDetName);

@@ -5,6 +5,7 @@
 #include "G4LogicalVolume.hh"
 #include "G4NistManager.hh"
 #include "G4Box.hh"
+#include "G4Tubs.hh"
 #include "G4PVPlacement.hh"
 #include "G4VisAttributes.hh"
 #include "G4RotationMatrix.hh"
@@ -20,10 +21,11 @@ public:
     ~MyDetectorConstruction();
 
     G4VPhysicalVolume *createSmallBox(G4LogicalVolume *motherVolume, G4int i, G4int j, G4int k, G4int);
-    G4VPhysicalVolume *createSourceBox(G4LogicalVolume *motherVolume);
+    G4VPhysicalVolume *createSourceFrame(G4LogicalVolume *motherVolume);
+    G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4String nameSource, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
 
-    G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
+    G4double GetMassOfDetector() const {return detMass;};
     virtual G4VPhysicalVolume *Construct();
     // std::vector<G4LogicalVolume*> detectorLVs;
 
@@ -38,7 +40,40 @@ private:
 
     virtual void ConstructSDandField();
     G4LogicalVolume* flv_voxel;
-    
+    G4Material *ECB;
+
+    G4double detMass;
+
+    // Khai báo thanh nguồn
+    G4double dRod = 9.64 *mm;
+    G4double dShell = 11.1 *mm;
+    G4double lRod = 450. *mm;
+    G4double lShell = 451.6 *mm;
+    G4double massRod = 291. *g;
+    G4double densityInox = 8. *g/cm3;
+    G4double distance2rods = 2.6 *mm;
+    G4double distanceAB = 50. *mm; //150*mm
+    G4double distanceAC = 250. *mm;
+    G4double distanceBetween2Frame = 2* 150. *mm;
+    // G4double widthOfFrame = 38 * dShell + 37 * distance2rods + distanceBetween2Frame;
+
+    //////////////////////////////////////////////////////////
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            A             //            B             //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //////////////////////////////////////////////////////////
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //            C             //             D            //
+    //                          //                          //
+    //                          //                          //
+    //                          //                          //
+    //////////////////////////////////////////////////////////
 };
 
 #endif

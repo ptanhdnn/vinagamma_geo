@@ -56,7 +56,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
         G4RunManager::GetRunManager()->GetUserDetectorConstruction()
     );
         // G4cout << "This is process Hits. 2 " << edep << G4endl;
-        G4double mass = detConstruction->GetScoringVolume()->GetMass();
+        G4double mass = detConstruction->GetMassOfDetector();
         // G4cout << "This is process Hits. 3 " <<G4endl;
         
         

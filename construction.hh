@@ -25,7 +25,7 @@ public:
     G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4String nameSource, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
 
-    G4LogicalVolume *GetScoringVolume() const {return fScoringVolume;};
+    G4double GetMassOfDetector() const {return detMass;};
     virtual G4VPhysicalVolume *Construct();
     // std::vector<G4LogicalVolume*> detectorLVs;
 
@@ -40,6 +40,9 @@ private:
 
     virtual void ConstructSDandField();
     G4LogicalVolume* flv_voxel;
+    G4Material *ECB;
+
+    G4double detMass;
 
     // Khai báo thanh nguồn
     G4double dRod = 9.64 *mm;

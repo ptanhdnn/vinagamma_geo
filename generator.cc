@@ -110,10 +110,13 @@ G4ThreeVector MyPrimaryGenerator::generateBeamFrame()
 
     G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
     G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
-    G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
-    G4ThreeVector posSource = SetPositionOfBeam(nameSource, nameFrame, noRod);
+    if (!rodLV) {
+        G4cerr << "Logical volume not found: " << nameRodLV << G4endl;
+        return G4ThreeVector();
+    }
+    // G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
 
-    return posSource;
+    return SetPositionOfBeam(nameSource, nameFrame, noRod);
 }
 
 G4ThreeVector MyPrimaryGenerator::SetPositionOfBeam(G4String nameSource, G4String nameFrame, G4int noRod)

@@ -69,6 +69,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
         // G4ThreeVector posDetector = physVol->GetTranslation();
 
         TrackerHit *newHit = new TrackerHit();
+        G4cout << "Dose value: " << edep/mass << G4endl;
         newHit->SetDose(edep/mass);
         // newHit->SetTrackID(track->GetTrackID());
         // newHit->SetDetectorNb(copyNo);

@@ -17,7 +17,7 @@ int main(int argc, char** argv)
     auto *runManager = G4RunManagerFactory::CreateRunManager();
 #ifdef G4MULTITHREADED
     G4cout << "Running the multithreaded process" << G4endl;
-    runManager->SetNumberOfThreads(40);
+    runManager->SetNumberOfThreads(30);
 #endif
 
     G4UIExecutive* ui = 0;
@@ -47,8 +47,22 @@ int main(int argc, char** argv)
     // UImanager->ApplyCommand("/vis/scene/add/trajectories smooth");
     // UImanager->ApplyCommand("/vis/scene/endOfEventAction accumulate");
     // UImanager->ApplyCommand("/vis/scene/add/axes");
-    UImanager->ApplyCommand("/control/execute run.mac");
-    ui->SessionStart();
+    if ( !ui ) {
+    // execute an argument macro file if exist
+        G4String command = "/control/execute ";
+        G4String fileName = argv[1];
+        UImanager->ApplyCommand(command+fileName);
+    } else {
+        UImanager->ApplyCommand("/control/execute init_vis.mac");
+        if (ui->IsGUI()) {
+            UImanager->ApplyCommand("/control/execute gui.mac");
+        }
+    // start interactive session
+        ui->SessionStart();
+        delete ui;
+    }
+    // UImanager->ApplyCommand("/control/execute run.mac");
+    // ui->SessionStart();
 
     return 0;
 }

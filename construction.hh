@@ -24,6 +24,7 @@ public:
     G4VPhysicalVolume *createSourceFrame(G4LogicalVolume *motherVolume);
     G4VPhysicalVolume *createSourceRod(G4LogicalVolume *motherVolume, G4String nameSource, G4int noRod, G4String nameFrame, G4double posRodX, G4double posRodY, G4double posRodZ);
     G4VPhysicalVolume *createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
+    G4VPhysicalVolume *createDetectorOutsideSystem(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo);
 
     G4double GetMassOfDetector() const {return detMass;};
     virtual G4VPhysicalVolume *Construct();
@@ -41,6 +42,7 @@ private:
     virtual void ConstructSDandField();
     G4LogicalVolume* flv_voxel;
     G4Material *ECB;
+    G4double denECB;
 
     G4double detMass;
 

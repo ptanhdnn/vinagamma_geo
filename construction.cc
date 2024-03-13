@@ -4,6 +4,26 @@
 MyDetectorConstruction::MyDetectorConstruction()
 {
     // totalNo = 0;
+    G4double pVwater = 4.*perCent;
+    G4double pVclobenzen = 24.*perCent;
+    G4double pVEthanol = 72.*perCent;
+    G4double denWater  = 1.*g/cm3;
+    G4double denCloBenzen = 1.11*g/cm3;
+    G4double denEthanol = 789*kg/m3;
+    
+    G4NistManager *nistManager = G4NistManager::Instance();
+
+    denECB =  pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol;
+    G4double pMwater = pVwater*denWater/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4double pMclobenzen = pVclobenzen*denCloBenzen/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4double pMethanol = pVEthanol*denEthanol/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
+    G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
+    G4Material* clobenzen = G4NistManager::Instance()->FindOrBuildMaterial("G4_CHLOROBENZENE");
+    G4Material* ethanol = G4NistManager::Instance()->FindOrBuildMaterial("G4_ETHYL_ALCOHOL");
+    ECB = new G4Material("ECB",denECB,3);
+    ECB->AddMaterial(water,pMwater);
+    ECB->AddMaterial(clobenzen,pMclobenzen);
+    ECB->AddMaterial(ethanol,pMethanol);
 }
 
 MyDetectorConstruction::~MyDetectorConstruction()
@@ -13,22 +33,40 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4NistManager *nistManager = G4NistManager::Instance();
     // Tạo phần vật liệu của vỏ thùng là nhôm
     G4Material *boxMaterial = nistManager->FindOrBuildMaterial("G4_Al");
-    // Tạo phần vật liệu của nắp thùng là không khí
-    G4Material *topMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
+    // vật liệu của nắp thùng là không khí
+    G4Material *air = nistManager->FindOrBuildMaterial("G4_AIR");
+    // vật liệu dummy
+    G4Material *dummyMaterial = nistManager->FindOrBuildMaterial("G4_Fe");
 
-    G4double boxX = 30.0 * cm; // Chiều dài thùng hàng
-    G4double boxY = 20.0 * cm; // Chiều rộng thùng hàng
-    G4double boxZ = 40.0 * cm; // Chiều cao thùng hàng
-    G4Box *solidOriginalBox = new G4Box("OriginalBox", boxX, boxY, boxZ);
+    G4double thickOfBox = 0.3 *cm;
 
-    // Tạo phần thể tích không gian vật liệu bên trong thùng hàng
-    G4double insideBoxX = 29.5 *cm;
-    G4double insideBoxY = 19.5 *cm;
-    G4double insideBoxZ = 39.5 *cm;
-    G4Box *solidPackage = new G4Box("package", insideBoxX, insideBoxY, insideBoxZ);
-    G4SubtractionSolid *solidBox = new G4SubtractionSolid("BoxSolid", solidOriginalBox, solidPackage);
-    G4LogicalVolume *logicPackage = new G4LogicalVolume(solidPackage, boxMaterial, "packageLogical");
-    G4LogicalVolume *logicBox = new G4LogicalVolume(solidBox, boxMaterial, "boxLogical");   //thùng hàng
+    G4double airGap = 1. *cm;
+
+// thùng hàng
+    G4double boxX = 30.0 * cm; // Chiều dài
+    G4double boxY = 20.0 * cm; // Chiều rộng
+    G4double boxZ = 40.0 * cm; // Chiều cao
+
+// Dummy
+    // kích thước dummy = kích thước thùng hàng - bề dày - airGap
+    G4double dummyX = 28.7 * cm; // Chiều dài
+    G4double dummyY = 18.7 * cm; // Chiều rộng
+    G4double dummyZ = 38.7 * cm; // Chiều cao
+
+    G4Box *solidOuterBox = new G4Box("OuterBox", boxX, boxY, boxZ);
+    G4LogicalVolume *logicOuterBox = new G4LogicalVolume(solidOuterBox, boxMaterial, "boxLVs");    
+    G4Box *solidInnerBox = new G4Box("innerBox", boxX-thickOfBox, boxY-thickOfBox, boxZ-thickOfBox);
+    G4LogicalVolume *logicInnerBox = new G4LogicalVolume(solidInnerBox, air, "airGapLVs");
+
+    G4Box *solidOuterDummy = new G4Box("OuterDummy", dummyX, dummyY, dummyZ);
+    G4LogicalVolume *logicOuterDummy = new G4LogicalVolume(solidOuterDummy, dummyMaterial, "dummyLVs");
+    G4Box *solidInnerDummy = new G4Box("InnerDummy", dummyX-thickOfBox, dummyY-thickOfBox, dummyZ-thickOfBox);
+    G4LogicalVolume *logicOuterBox = new G4LogicalVolume(solidInnerDummy, air, "airLVs");
+
+    // G4SubtractionSolid *solidBox = new G4SubtractionSolid("BoxSolid", solidOuterBox, solidInnerBox);
+
+    // G4LogicalVolume *logicPac = new G4LogicalVolume(solidPackage, boxMaterial, "packageLogical");
+    // G4LogicalVolume *logicBox = new G4LogicalVolume(solidBox, boxMaterial, "boxLogical");   /
 
     // Geant4 sẽ đặt vị trí tại tâm của các thùng hàng không phải tại cạnh của box
     //  nên sẽ phải trừ 1 nửa kích thước của các chiều của thùng hàng
@@ -56,7 +94,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4double topBoxY = 19.5 *cm;
     G4double topBoxZ = 0.25 *cm;
     G4Box *solidTop = new G4Box("solidTop", topBoxX, topBoxY, topBoxZ);
-    G4LogicalVolume *logicTop = new G4LogicalVolume(solidTop, topMaterial, "topLogical");
+    G4LogicalVolume *logicTop = new G4LogicalVolume(solidTop, air, "topLogical");
 
     G4double posTopX = -97.5 *cm + 30.0 * 2 * i * cm + (i/2) * 15.0 *cm;
     G4double posTopY = -140.0 *cm + 20.0 * 2 * j * cm;
@@ -173,28 +211,6 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *mo
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo){
-    G4NistManager *nistManager = G4NistManager::Instance();
-
-    G4double pVwater = 4.*perCent;
-    G4double pVclobenzen = 24.*perCent;
-    G4double pVEthanol = 72.*perCent;
-    G4double denWater  = 1.*g/cm3;
-    G4double denCloBenzen = 1.11*g/cm3;
-    G4double denEthanol = 789*kg/m3;
-
-    G4Material *detMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
-    G4double denECB =  pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol;
-    G4double pMwater = pVwater*denWater/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
-    G4double pMclobenzen = pVclobenzen*denCloBenzen/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
-    G4double pMethanol = pVEthanol*denEthanol/(pVwater*denWater + pVclobenzen*denCloBenzen + pVEthanol*denEthanol);
-    G4Material* water = G4NistManager::Instance()->FindOrBuildMaterial("G4_WATER");
-    G4Material* clobenzen = G4NistManager::Instance()->FindOrBuildMaterial("G4_CHLOROBENZENE");
-    G4Material* ethanol = G4NistManager::Instance()->FindOrBuildMaterial("G4_ETHYL_ALCOHOL");
-    ECB = new G4Material("ECB",denECB,3);
-    ECB->AddMaterial(water,pMwater);
-    ECB->AddMaterial(clobenzen,pMclobenzen);
-    ECB->AddMaterial(ethanol,pMethanol);
-        
 
     G4double detSizeX = 2.95 *cm;
     G4double detSizeY = 1.95 *cm;
@@ -219,9 +235,26 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
             }
         }
     }
+
+    for (G4int k =0; k<2; k++){
+        for (G4int j=0; j<2; j++){
+            for (G4int i=0; i<2; i++){
+                G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
+                G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+                logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
+
+                G4double posDetX = posX
+            }
+        }
+    }
     // G4cout << "===========================================" << G4endl
     //    << "Get Total Number " << totalNo << G4endl
     //    << "==========================================" << G4endl;
+}
+
+G4VPhysicalVolume *MyDetectorConstruction::createDetectorOutsideSystem(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo)
+{
+
 }
 
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {

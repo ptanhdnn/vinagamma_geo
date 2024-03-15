@@ -17,7 +17,7 @@ Solution: tạo lại kích thước và vị trí của các thanh nguồn tron
 
 11/3:
 - Khai báo các thanh nguồn với các xác suất phát khác nhau dựa theo tỷ lệ hoạt độ của chúng. (chưa xong)
-- Thêm các thùng sắt vào box cho giống thực tế.
+- Thêm các thùng sắt vào box cho giống thực tế. (done)
 - Sửa lại các detector (4 góc là ok, để tránh tạo thành mật độ cao trong box - tính toán lại).
 - Thêm các detector outside.
 => Khai báo lại các SD.

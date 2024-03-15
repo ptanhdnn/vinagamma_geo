@@ -61,7 +61,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4Box *solidOuterDummy = new G4Box("OuterDummy", dummyX, dummyY, dummyZ);
     G4LogicalVolume *logicOuterDummy = new G4LogicalVolume(solidOuterDummy, dummyMaterial, "dummyLVs");
     G4Box *solidInnerDummy = new G4Box("InnerDummy", dummyX-thickOfBox, dummyY-thickOfBox, dummyZ-thickOfBox);
-    G4LogicalVolume *logicOuterBox = new G4LogicalVolume(solidInnerDummy, air, "airLVs");
+    G4LogicalVolume *logicInnerDummy = new G4LogicalVolume(solidInnerDummy, air, "airLVs");
 
     // G4SubtractionSolid *solidBox = new G4SubtractionSolid("BoxSolid", solidOuterBox, solidInnerBox);
 
@@ -87,7 +87,8 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     G4double posZ = -45.0 *cm + 40.0 * 2 * k *cm +k *10.0 *cm;
     G4ThreeVector position = G4ThreeVector(posX, posY, posZ);
 
-    G4VPhysicalVolume *physicalBox = new G4PVPlacement(0, position, logicBox, "BoxPhysical", motherVolume, false, 0);
+    G4VPhysicalVolume *physicalBox = new G4PVPlacement(0, position, logicOuterBox, "BoxPhysical", motherVolume, false, 0);
+    G4VPhysicalVolume *physicalDummy = new G4PVPlacement(0, position, logicOuterDummy, "DummyPhysical", motherVolume, false, 0);
 
      // Tạo phần thể tích nắp, thay bằng không khí
     G4double topBoxX = 29.5 *cm;
@@ -215,7 +216,10 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     G4double detSizeX = 2.95 *cm;
     G4double detSizeY = 1.95 *cm;
     G4double detSizeZ = 3.95 *cm;
-    detMass  = detSizeX * detSizeY * detSizeZ * denECB;
+
+    G4double d_det = 1.5 *cm;
+    G4double h_det = 6.0 *cm;
+    detMass  = CLHEP::pi * (d_det/2) * (d_det/2) * h_det * denECB;
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
     // G4cout << "posDetX in loop: " << G4endl;
@@ -236,17 +240,19 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
         }
     }
 
-    for (G4int k =0; k<2; k++){
-        for (G4int j=0; j<2; j++){
-            for (G4int i=0; i<2; i++){
-                G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
-                G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-                logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
+    for (G4int i = 0; i < 2)
 
-                G4double posDetX = posX
-            }
-        }
-    }
+    // for (G4int k =0; k<2; k++){
+    //     for (G4int j=0; j<2; j++){
+    //         for (G4int i=0; i<2; i++){
+    //             G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
+    //             G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+    //             logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
+
+    //             G4double posDetX = posX
+    //         }
+    //     }
+    // }
     // G4cout << "===========================================" << G4endl
     //    << "Get Total Number " << totalNo << G4endl
     //    << "==========================================" << G4endl;
@@ -279,6 +285,7 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
             }
         }
     }
+
 
     createSourceFrame(logicWorld);
 

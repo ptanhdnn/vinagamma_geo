@@ -1,4 +1,6 @@
 #include "generator.hh"
+#include "sourceInfo.hh"
+
 #include <ctime>
 
 MyPrimaryGenerator::MyPrimaryGenerator()
@@ -108,7 +110,10 @@ G4ThreeVector MyPrimaryGenerator::generateBeamFrame()
 
     G4int noRod = std::round(randNumber*37);
 
-    G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    sourceInformation mySourceInfo;
+
+    if(mySourceInfo.CheckActivitySourceRod(nameSource, nameFrame, noRod)){
+        G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
     G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
     if (!rodLV) {
         G4cerr << "Logical volume not found: " << nameRodLV << G4endl;
@@ -117,6 +122,8 @@ G4ThreeVector MyPrimaryGenerator::generateBeamFrame()
     // G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
 
     return SetPositionOfBeam(nameSource, nameFrame, noRod);
+    }
+    
 }
 
 G4ThreeVector MyPrimaryGenerator::SetPositionOfBeam(G4String nameSource, G4String nameFrame, G4int noRod)

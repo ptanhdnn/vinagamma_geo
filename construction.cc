@@ -118,7 +118,7 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
     // ===================================================================================
     // Tạo các detector trong mỗi thùng hàng
     // ===================================================================================    
-    createDetector(motherVolume, posX-boxX, posY-boxY, posZ-boxZ, totalNo);
+    createDetector(motherVolume, posX-boxX, posY-boxY, posZ-boxZ, i, j, k, totalNo);
 
     return physicalBox;
 }
@@ -211,8 +211,10 @@ G4VPhysicalVolume *MyDetectorConstruction::createSourceFrame(G4LogicalVolume *mo
     }
 }
 
-G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo){
+G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, 
+                                                            G4int i, G4int j, G4int k, G4int totalNo)
 
+{
     G4double detSizeX = 2.95 *cm;
     G4double detSizeY = 1.95 *cm;
     G4double detSizeZ = 3.95 *cm;
@@ -223,24 +225,39 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
     // G4cout << "posDetX in loop: " << G4endl;
-    for (G4int k=0; k<9; k++){  //9
-        for (G4int j=0; j<9; j++){
-            for (G4int i=0; i<9;i++){
-                G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
-                G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-                logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
-                // G4double posDetX = posX + detSizeX * 2 * (i+1);
-                // G4double posDetY = posY + detSizeY * 2 *(j+1);
-                G4double posDetX = posX + detSizeX;
-                G4double posDetY = posY + detSizeY;
-                G4double posDetZ = posZ + detSizeZ * 2 *(k+1);
-                G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
-                G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhys_" + detID, motherVolume, false, totalNo, false);
-            }
-        }
-    }
+    // for (G4int k=0; k<9; k++){  //9
+    //     for (G4int j=0; j<9; j++){
+    //         for (G4int i=0; i<9;i++){
+    //             G4Box *solidDetector = new G4Box("solidDet", detSizeX, detSizeY, detSizeZ);
+    //             G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+    //             logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVs_" + detID);
+    //             // G4double posDetX = posX + detSizeX * 2 * (i+1);
+    //             // G4double posDetY = posY + detSizeY * 2 *(j+1);
+    //             G4double posDetX = posX + detSizeX;
+    //             G4double posDetY = posY + detSizeY;
+    //             G4double posDetZ = posZ + detSizeZ * 2 *(k+1);
+    //             G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
+    //             G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhys_" + detID, motherVolume, false, totalNo, false);
+    //         }
+    //     }
+    // }
 
-    for (G4int i = 0; i < 2)
+/*
+    posX,Y,Z lấy tọa độ của cạnh + 1/2 độ dài của cạnh + bán kính của ống đầu dò
+    posDetX = posX + boxX/2 + d_det/2;
+    posDetY = posY + boxY/2;
+    posDetZ = posZ + boxZ/2;
+*/
+    // đặt tọa độ của detector Inner tại vị trí thành trong phía ngoài của box
+    G4double posDetX = posX + (0.3 + 1 + 0.3) *cm + d_det/2;
+    G4double posDetY = posY + boxY/2;
+    G4double posDetZ = posZ + boxZ/2;
+    G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
+
+    G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+    G4Tubs *solidDetector = new G4Tubs("solidDet", 0. *cm, d_det/2 *cm, h_det/2, 0.0, 360. *deg);
+    G4LogicalVolume *logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVsInner_" + detID);
+    G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysInner_" + detID, motherVolume, false, totalNo, false);
 
     // for (G4int k =0; k<2; k++){
     //     for (G4int j=0; j<2; j++){
@@ -258,16 +275,16 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     //    << "==========================================" << G4endl;
 }
 
-G4VPhysicalVolume *MyDetectorConstruction::createDetectorOutsideSystem(G4LogicalVolume *motherVolume, G4double posX, G4double posY, G4double posZ, G4int totalNo)
-{
-
-}
+// G4VPhysicalVolume *MyDetectorConstruction::createDetectorOutsideSystem(G4LogicalVolume *motherVolume)
+// {
+//     G4double posOuterDetX = 
+// }
 
 G4VPhysicalVolume *MyDetectorConstruction::Construct() {
     G4NistManager *nistManager = G4NistManager::Instance();
     G4Material *airMaterial = nistManager->FindOrBuildMaterial("G4_AIR");
 
-    G4double worldSizeX = 132.5 *cm;
+    G4double worldSizeX = 132.5 *cm + 150. *cm;
     G4double worldSizeY = 165.0 *cm;
     G4double worldSizeZ = 90.0 *cm;
     G4Box *solidWorld = new G4Box("World", worldSizeX, worldSizeY, worldSizeZ);
@@ -299,17 +316,24 @@ G4VPhysicalVolume *MyDetectorConstruction::Construct() {
 void MyDetectorConstruction::ConstructSDandField()
 {
     G4cout << "Create SD collection " << G4endl;
-    for(G4int no = 0; no < 8; no++){
-        for (G4int k=0; k<9; k++){
-            for (G4int j=0; j<9; j++){
-                for (G4int i=0; i<9; i++){
-                    G4String detName = "detLVs_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-                    G4String hcofDetName = "hc_" + std::to_string(no) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-                    auto aTrackerSD = new MySensitiveDetector(detName, hcofDetName);
-                    G4SDManager::GetSDMpointer()->AddNewDetector(aTrackerSD);
-                    SetSensitiveDetector(detName, aTrackerSD, true);
-                }
+
+    // khai báo inner detector có dạng: "detLVsInner_totalNo_i_j_k"
+    // trong đó: totalNo theo thứ tự sẽ là số box
+    //          i,j,k theo đó là tọa độ của box theo hàng, dài, dọc.    2x8x4
+
+    G4int totalNo = 0;
+    for (G4int k=0; k<2; k++){                  // tầng
+        for (G4int j=0; j<8; j++){              // hàng dài (bề ngang)
+            for (G4int i=0; i<4; i++){          // hàng ngắn (bề dọc)
+            // theo thứ tự sẽ là từ dưới lên trên, lần lượt hàng dài sẽ thêm 4 ô ngắn
+                G4String detName = "detLVsInner_" + std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+                G4String hcofDetName = "hc_" + std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
+                auto aTrackerSD = new MySensitiveDetector(detName, hcofDetName);
+                G4SDManager::GetSDMpointer()->AddNewDetector(aTrackerSD);
+                SetSensitiveDetector(detName, aTrackerSD, true);
+                totalNo++;
             }
         }
     }
+
 }

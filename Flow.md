@@ -19,6 +19,7 @@ Solution: tạo lại kích thước và vị trí của các thanh nguồn tron
 - Khai báo các thanh nguồn với các xác suất phát khác nhau dựa theo tỷ lệ hoạt độ của chúng. (chưa xong)
 - Thêm các thùng sắt vào box cho giống thực tế. (done)
 - Sửa lại các detector (4 góc là ok, để tránh tạo thành mật độ cao trong box - tính toán lại).
+=> Đã sửa lại với các inner detector là 1 det ở tại mặt trong của dummy (done)
 - Thêm các detector outside.
 => Khai báo lại các SD.
 - Kiểm tra plot.C với mô hình 3D trên root.

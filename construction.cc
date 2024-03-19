@@ -42,11 +42,6 @@ G4VPhysicalVolume *MyDetectorConstruction::createSmallBox(G4LogicalVolume *mothe
 
     G4double airGap = 1. *cm;
 
-// thùng hàng
-    G4double boxX = 30.0 * cm; // Chiều dài
-    G4double boxY = 20.0 * cm; // Chiều rộng
-    G4double boxZ = 40.0 * cm; // Chiều cao
-
 // Dummy
     // kích thước dummy = kích thước thùng hàng - bề dày - airGap
     G4double dummyX = 28.7 * cm; // Chiều dài
@@ -215,12 +210,8 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
                                                             G4int i, G4int j, G4int k, G4int totalNo)
 
 {
-    G4double detSizeX = 2.95 *cm;
-    G4double detSizeY = 1.95 *cm;
-    G4double detSizeZ = 3.95 *cm;
-
     G4double d_det = 1.5 *cm;
-    G4double h_det = 6.0 *cm;
+    G4double h_det = 4.0 *cm;
     detMass  = CLHEP::pi * (d_det/2) * (d_det/2) * h_det * denECB;
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;
@@ -249,13 +240,14 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
     posDetZ = posZ + boxZ/2;
 */
     // đặt tọa độ của detector Inner tại vị trí thành trong phía ngoài của box
-    G4double posDetX = posX + (0.3 + 1 + 0.3) *cm + d_det/2;
-    G4double posDetY = posY + boxY/2;
-    G4double posDetZ = posZ + boxZ/2;
+    G4double posDetX = posX + boxX;
+    G4double posDetY = posY + boxY;
+    G4double posDetZ = posZ + boxZ;
+
     G4ThreeVector posDet = G4ThreeVector(posDetX, posDetY, posDetZ);
 
     G4String detID = std::to_string(totalNo) + "_" + std::to_string(i) + "_" + std::to_string(j) + "_" + std::to_string(k);
-    G4Tubs *solidDetector = new G4Tubs("solidDet", 0. *cm, d_det/2 *cm, h_det/2, 0.0, 360. *deg);
+    G4Tubs *solidDetector = new G4Tubs("solidDet", 0. *cm, d_det/2 , h_det/2, 0.0, 360. *deg);
     G4LogicalVolume *logicDetector = new G4LogicalVolume(solidDetector, ECB, "detLVsInner_" + detID);
     G4VPhysicalVolume *physicalDetector = new G4PVPlacement(0, posDet, logicDetector, "detPhysInner_" + detID, motherVolume, false, totalNo, false);
 

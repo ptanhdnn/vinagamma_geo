@@ -46,7 +46,12 @@ private:
     G4double denECB;
 
     G4double detMass;
-    G4double boxX, boxY, boxZ;
+
+    // thùng hàng
+    G4double boxX = 30.0 * cm; // Chiều dài
+    G4double boxY = 20.0 * cm; // Chiều rộng
+    G4double boxZ = 40.0 * cm; // Chiều cao
+    
     G4double dummyX, dummyY, dummyZ;
 
     // Khai báo thanh nguồn

@@ -13,3 +13,9 @@ bool sourceInformation::CheckActivitySourceRod(G4String nameFrame, G4String name
     }
     return false;
 }
+
+G4int sourceInformation::GetBeamRod()
+{
+    G4double randNumber = G4UniformRand()*6;
+    return SourceRodPosModuleBF2[randNumber];
+}

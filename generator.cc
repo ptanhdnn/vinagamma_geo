@@ -78,51 +78,55 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 // chọn random thanh nguồn phát với tên các thanh rodLVs
 G4ThreeVector MyPrimaryGenerator::generateBeamFrame()
 {
-    G4double randNumber = G4UniformRand();
-    G4double randSource = G4UniformRand();
+    // G4double randNumber = G4UniformRand();
+    // G4double randSource = G4UniformRand();
 
-    G4int noSource = std::round(randSource*2) + 1;
-    G4String nameSource = "F1";
-    switch (noSource)
-    {
-    case 2:
-        nameSource = "F2";
-        break;
-    case 3:
-        nameSource = "F3";
-        break;
-    }
+    // G4int noSource = std::round(randSource*2) + 1;
+    // G4String nameSource = "F1";
+    // switch (noSource)
+    // {
+    // case 2:
+    //     nameSource = "F2";
+    //     break;
+    // case 3:
+    //     nameSource = "F3";
+    //     break;
+    // }
 
-    G4int noFrame = std::round(randNumber*3) + 1;
-    G4String nameFrame = "A";
-    switch (noFrame)
-    {
-    case 2:
-        nameFrame = "B";
-        break;
-    case 3:
-        nameFrame = "C";
-        break;
-    case 4:
-        nameFrame = "D";
-        break;
-    }
+    // G4int noFrame = std::round(randNumber*3) + 1;
+    // G4String nameFrame = "A";
+    // switch (noFrame)
+    // {
+    // case 2:
+    //     nameFrame = "B";
+    //     break;
+    // case 3:
+    //     nameFrame = "C";
+    //     break;
+    // case 4:
+    //     nameFrame = "D";
+    //     break;
+    // }
 
-    G4int noRod = std::round(randNumber*37);
+
+
+    // G4int noRod = std::round(randNumber*37);
 
     sourceInformation mySourceInfo;
 
-    if(mySourceInfo.CheckActivitySourceRod(nameSource, nameFrame, noRod)){
-        G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
-    G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
-    if (!rodLV) {
-        G4cerr << "Logical volume not found: " << nameRodLV << G4endl;
-        return G4ThreeVector();
-    }
+    G4int numberOfRod = mySourceInfo.GetBeamRod();
+
+    // if(mySourceInfo.CheckActivitySourceRod(nameSource, nameFrame, noRod)){
+    //     G4String nameRodLV = nameSource + "_" + nameFrame + "_" + std::to_string(noRod) + "_RodLVs";
+    // G4LogicalVolume *rodLV =  G4LogicalVolumeStore::GetInstance()->GetVolume(nameRodLV);
+    // if (!rodLV) {
+    //     G4cerr << "Logical volume not found: " << nameRodLV << G4endl;
+    //     return G4ThreeVector();
+    // }
     // G4cout << "name of rod logical volume: " << rodLV->GetName() << G4endl;
 
-    return SetPositionOfBeam(nameSource, nameFrame, noRod);
-    }
+    return SetPositionOfBeam("F2", "B", numberOfRod);
+    // }
     
 }
 

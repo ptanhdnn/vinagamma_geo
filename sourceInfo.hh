@@ -1,6 +1,9 @@
 #ifndef SOURCEINFORMATION_HH
 #define SOURCEINFORMATION_HH
+
 #include "globals.hh"
+#include "Randomize.hh"
+
 #include <vector>
 
 class sourceInformation
@@ -8,6 +11,7 @@ class sourceInformation
 {
 public:
     bool CheckActivitySourceRod(G4String nameFrame, G4String nameModule, G4int noRod);
+    G4int GetBeamRod();
 // module A
     std::vector<G4String> SourceRodNamesModuleAF2 = {"889C","AP1","886C","AP0","AC6","887C","AK2"};
     std::vector<G4int> SourceRodPosModuleAF2 = {23,25,27,29,32,34,36};

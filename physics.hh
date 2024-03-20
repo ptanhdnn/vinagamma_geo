@@ -1,17 +1,22 @@
-#ifndef PHYSICS_HH
-#define PHYSICS_HH
+#ifndef PHYSICSLIST_HH
+#define PHYSICSLIST_HH
+#include "G4VUserPhysicsList.hh"
+#include "globals.hh"
 
-#include "G4VModularPhysicsList.hh"
-#include "G4EmStandardPhysics.hh"
-#include "G4OpticalPhysics.hh"
-#include "G4DecayPhysics.hh"
-#include "G4RadioactiveDecayPhysics.hh"
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class MyPhysicsList : public G4VModularPhysicsList
+class PhysicsList: public G4VUserPhysicsList
 {
-    public:
-    MyPhysicsList();
-    ~MyPhysicsList();
+  public:
+    PhysicsList();
+   ~PhysicsList();
+
+  protected:
+    // Construct particle and physics
+    virtual void ConstructParticle();
+    virtual void ConstructProcess();
+    virtual void SetCuts();
 };
 
-#endif
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#endif // PHYSICSLIST_HH

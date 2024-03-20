@@ -6,6 +6,11 @@
 MyPrimaryGenerator::MyPrimaryGenerator()
 {
     fParticleGun = new G4ParticleGun(1);
+    G4ParticleTable *particleTable = G4ParticleTable::GetParticleTable();
+    G4ParticleDefinition *particleDef = particleTable->FindParticle("geantino");
+    fParticleGun->SetParticleDefinition(particleDef);
+    fParticleGun->SetParticleEnergy(100.*MeV);
+    fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
 }
 
 MyPrimaryGenerator::~MyPrimaryGenerator()
@@ -15,21 +20,21 @@ MyPrimaryGenerator::~MyPrimaryGenerator()
 
 void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 {
+    // G4cout << "Start beam" << G4endl;
     G4long seed = time(nullptr);
     CLHEP::HepRandom::setTheSeed(seed);
-    double halfLifeInSeconds = 5.26 * 365.25 * 24 * 3600; // 5.26 years
-    double activityCi = 187.0; // Activity in kiloCuries
-    double lambda = log(2.0) / halfLifeInSeconds; // Calculate decay constant
-
-    // Calculate the number of decays per second (Becquerels)
-    double activityBq = activityCi * 1e3 * 3.7e10; // 1 Ci = 3.7e10 Bq
-    double decayConstant = lambda * activityBq;
 
     // Define the Cobalt60
-    G4String elementName = "Cobalt";
-    G4int Z = 27;
-    G4int A = 60;
-    G4double charge = 0. *eplus;
+    if (fParticleGun->GetParticleDefinition() == G4Geantino::Geantino()) {
+        G4int Z = 27, A = 60;
+        G4double ionCharge   = 0.*eplus;
+        G4double excitEnergy = 0*keV;
+
+        G4ParticleDefinition* ion
+            = G4IonTable::GetIonTable()->GetIon(Z,A,excitEnergy);
+        fParticleGun->SetParticleDefinition(ion);
+        fParticleGun->SetParticleCharge(ionCharge);
+    }
     // G4double energy = 0. *keV;
 
     G4ThreeVector posGenBeam = generateBeamFrame();
@@ -62,17 +67,13 @@ void MyPrimaryGenerator::GeneratePrimaries(G4Event *anEvent)
 
     G4ThreeVector mom(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));  // Hướng ngẫu nhiên
 
-    G4double energy = (G4UniformRand() < 0.5) ? 1.17 * MeV : 1.33 * MeV;
     // G4double energy = 10. *MeV;
 
-    G4ParticleDefinition *ion = G4IonTable::GetIonTable()->GetIon(Z, A, energy); 
-    fParticleGun->SetParticleDefinition(ion);
-    fParticleGun->SetParticleCharge(charge);
     fParticleGun->SetParticlePosition(posGenBeam);
     fParticleGun->SetParticleMomentumDirection(mom);
-    fParticleGun->SetParticleEnergy(energy);
 
     fParticleGun->GeneratePrimaryVertex(anEvent);
+    // G4cout << "End beam" << G4endl;
 }
 
 // chọn random thanh nguồn phát với tên các thanh rodLVs

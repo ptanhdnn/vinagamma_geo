@@ -12,6 +12,7 @@
 #include "G4NistManager.hh"
 #include "G4Isotope.hh"
 #include "G4IonTable.hh"
+#include "G4Geantino.hh"
 #include "G4ParticleDefinition.hh"
 
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction

@@ -30,24 +30,24 @@ void MySensitiveDetector::Initialize(G4HCofThisEvent *hce)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhist)
 {
-    // G4cout << "This is process Hits. " <<G4endl;
+    G4cout << "This is process Hits. " <<G4endl;
     G4Track *track = aStep->GetTrack();
 
-    // G4ThreeVector startPosition = track->GetVertexPosition();
-    // G4ThreeVector endPosition = track->GetPosition();
-    // G4double stepLength = aStep->GetStepLength();
-    // G4double kineticEnergy = aStep->GetPreStepPoint()->GetKineticEnergy();
+    G4ThreeVector startPosition = track->GetVertexPosition();
+    G4ThreeVector endPosition = track->GetPosition();
+    G4double stepLength = aStep->GetStepLength();
+    G4double kineticEnergy = aStep->GetPreStepPoint()->GetKineticEnergy();
 
-    // G4cout << "Start position: " << startPosition << G4endl;
-    // G4cout << "End position: " << endPosition << G4endl;
-    // G4cout << "Step length: " << stepLength << G4endl;
-    // G4cout << "Kinetic energy: " << kineticEnergy << G4endl;
+    G4cout << "Start position: " << startPosition << G4endl;
+    G4cout << "End position: " << endPosition << G4endl;
+    G4cout << "Step length: " << stepLength << G4endl;
+    G4cout << "Kinetic energy: " << kineticEnergy << G4endl;
     // Get copy number and physical volume information
     const G4VTouchable* touchable = aStep->GetPreStepPoint()->GetTouchable();
     // G4int copyNo = touchable->GetCopyNumber();
     G4VPhysicalVolume* physVol = touchable->GetVolume();
     G4String detName = physVol->GetName();
-    // G4cout << "Detector Name: " << detName <<G4endl;
+    G4cout << "Detector Name: " << detName <<G4endl;
     G4ThreeVector posDetector = physVol->GetTranslation();
 
     G4double edep = aStep->GetTotalEnergyDeposit();
@@ -57,6 +57,7 @@ G4bool MySensitiveDetector::ProcessHits(G4Step *aStep, G4TouchableHistory *ROhis
     );
         // G4cout << "This is process Hits. 2 " << edep << G4endl;
         G4double mass = detConstruction->GetMassOfDetector();
+        G4cout << "Detector name: " << detName << " and mass of detector: " << mass << G4endl;
         // G4cout << "This is process Hits. 3 " <<G4endl;
         
         

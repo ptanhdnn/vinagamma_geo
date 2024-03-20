@@ -210,8 +210,8 @@ G4VPhysicalVolume *MyDetectorConstruction::createDetector(G4LogicalVolume *mothe
                                                             G4int i, G4int j, G4int k, G4int totalNo)
 
 {
-    G4double d_det = 1.5 *cm;
-    G4double h_det = 4.0 *cm;
+    G4double d_det = 1. *cm;
+    G4double h_det = 3.0 *cm;
     detMass  = CLHEP::pi * (d_det/2) * (d_det/2) * h_det * denECB;
 
     // G4cout << "+++++++++++++++++++++++++++++++++++++++++++++" << G4endl;

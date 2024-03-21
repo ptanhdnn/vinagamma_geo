@@ -6,6 +6,10 @@
 #include "run.hh"
 #include "event.hh"
 
+#include "G4GeneralParticleSource.hh"
+#include "G4ParticleTable.hh"
+#include "G4ParticleDefinition.hh"
+
 class MyActionInitialization : public G4VUserActionInitialization
 {
 public:
@@ -14,6 +18,9 @@ public:
 
     virtual void BuildForMaster() const;
     virtual void Build() const;
+
+private:
+    G4GeneralParticleSource* masterGPS;
 };
 
 #endif

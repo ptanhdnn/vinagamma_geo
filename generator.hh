@@ -4,6 +4,7 @@
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4ParticleGun.hh"
+#include "G4GeneralParticleSource.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4ParticleTable.hh"
 #include "G4RandomDirection.hh"
@@ -18,6 +19,7 @@
 class MyPrimaryGenerator : public G4VUserPrimaryGeneratorAction
 {
 private:
+    G4GeneralParticleSource *particleSource;
     G4ParticleGun *fParticleGun;
     G4ThreeVector generateBeamFrame();
     G4ThreeVector SetPositionOfBeam(G4String nameSource, G4String nameFrame, G4int noRod);

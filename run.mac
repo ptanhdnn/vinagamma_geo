@@ -1,4 +1,5 @@
 #
 # Change the default number of threads (in multi-threaded mode)
+/control/execute GPS.in
 /run/initialize
 /run/beamOn 100000

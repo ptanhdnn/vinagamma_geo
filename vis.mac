@@ -9,7 +9,7 @@
 #
 # Disable auto refresh and quieten vis messages whilst scene and
 # trajectories are established:
-/vis/viewer/set/autoRefresh false
+/vis/viewer/set/autoRefresh true
 /vis/verbose errors
 #
 # Draw geometry:
@@ -40,7 +40,7 @@
 #
 # To draw only gammas:
 #/vis/filtering/trajectories/create/particleFilter
-#/vis/filtering/trajectories/particleFilter-0/add gamma
+/vis/filtering/trajectories/particleFilter-0/add gamma
 #
 # To invert the above, drawing all particles except gammas,
 # keep the above two lines but also add:
@@ -52,7 +52,7 @@
 #/vis/modeling/trajectories/drawByParticleID-0/set e- blue
 #
 # To superimpose all of the events from a given run:
-#/vis/scene/endOfEventAction accumulate
+/vis/scene/endOfEventAction accumulate
 #
 # Re-establish auto refreshing and verbosity:
 /vis/viewer/set/autoRefresh true
